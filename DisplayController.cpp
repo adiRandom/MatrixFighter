@@ -37,7 +37,7 @@ DisplayController::DisplayController(
 }
 
 DisplayController::~DisplayController() {
-  for (int i = 0; i < width; i++) {
+  for (int i = 0; i < _width; i++) {
     delete[] _state[i];
   }
 
@@ -52,7 +52,7 @@ DisplayController::DisplayController()
     _height{ 0 },
     _horizontalDisplayCount{ 0 },
     _lc{
-      LedControl(dataPin, clkPin, loadPin, displayCount)
+      LedControl(_dataPin, _clkPin, _loadPin, _displayCount)
     },
     _displaySize{ 0 },
     _displayCount{ 0 },
@@ -96,4 +96,30 @@ void DisplayController::clearDisplay() {
   for (uint8_t i = 0; i < _displayCount; i++) {
     _lc.clearDisplay(i);
   }
+}
+
+DisplayController& DisplayController::operator=(DisplayController const& other) {
+  if (&other == this) {
+    return *this;
+  }
+
+  _dataPin = other._dataPin;
+  _loadPin = other._loadPin;
+  _clkPin = other._clkPin;
+  _width = other._width;
+  _height = other._height;
+  _horizontalDisplayCount = other._horizontalDisplayCount;
+  _displaySize = other._displaySize;
+  _displayCount = other._displayCount;
+  _lc = LedControl(_dataPin, _clkPin, _loadPin, _displayCount);
+
+  _state = new bool*[_height];
+  for (int i = 0; i < _height; i++) {
+    _state[i] = new bool[_width];
+    for (int j = 0; j < _width; j++) {
+      _state[i][j] = other._state[i][j];
+    }
+  }
+
+  return *this;
 }

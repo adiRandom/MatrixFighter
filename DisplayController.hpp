@@ -7,17 +7,17 @@
 
 class DisplayController {
 private:
-  uint8_t const _dataPin;
-  uint8_t const _loadPin;
-  uint8_t const _clkPin;
-  uint8_t const _width;
-  uint8_t const _height;
-  uint8_t const _displaySize;
-  uint8_t const _horizontalDisplayCount;
-  uint8_t const _displayCount;
+  uint8_t _dataPin;
+  uint8_t _loadPin;
+  uint8_t _clkPin;
+  uint8_t _width;
+  uint8_t _height;
+  uint8_t _displaySize;
+  uint8_t _horizontalDisplayCount;
+  uint8_t _displayCount;
   bool** _state;
 
-  LedControl const _lc;
+  LedControl _lc;
 
   struct PixelCoords {
     uint8_t row;
@@ -43,6 +43,8 @@ public:
   );
 
   ~DisplayController();
+
+  DisplayController& operator=(DisplayController const& other);
 
   void draw();
   void setPixel(uint8_t row, uint8_t column, bool value);

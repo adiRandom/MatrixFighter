@@ -1,3 +1,5 @@
+#include "DisplayController.hpp"
+
 uint8_t const DISPLAY_DATA_PIN = 12;
 uint8_t const DISPLAY_CLK_PIN = 11;
 uint8_t const DISPLAY_LOAD_PIN = 10;
@@ -21,7 +23,7 @@ void setup() {
     DISPLAY_SIZE
   );
 
-  displayController.setPixel(2, 3, true)
+  displayController.setPixel(2, 3, true);
 }
 
 void loop() {
