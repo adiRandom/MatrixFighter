@@ -12,6 +12,8 @@ uint8_t const DISPLAY_COUNT = 1;
 DisplayController displayController;
 
 void setup() {
+  Serial.begin(9600);
+  
   displayController = DisplayController(
     DISPLAY_DATA_PIN,
     DISPLAY_LOAD_PIN,
@@ -23,6 +25,7 @@ void setup() {
     DISPLAY_SIZE
   );
 
+  // TODO: Fix coords
   displayController.setPixel(2, 3, true);
 }
 

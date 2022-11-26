@@ -30,10 +30,7 @@ DisplayController::DisplayController(
     }
   }
 
-  _lc.shutdown(0, false);
-  // TODO: Get from settings
-  _lc.setIntensity(0, 2);
-  clearDisplay();
+  initDisplay();
 }
 
 DisplayController::~DisplayController() {
@@ -84,6 +81,7 @@ void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
 }
 
 void DisplayController::draw() {
+  Serial.println(_lc.getDeviceCount());
   for (uint8_t i = 0; i < _height; i++) {
     for (uint8_t j = 0; j < _width; j++) {
       DisplayController::PixelCoords pixel = resolvePixel(i, j);
@@ -92,8 +90,11 @@ void DisplayController::draw() {
   }
 }
 
-void DisplayController::clearDisplay() {
+void DisplayController::initDisplay() {
   for (uint8_t i = 0; i < _displayCount; i++) {
+    _lc.shutdown(i, false);
+    // TODO: Get from settings
+    _lc.setIntensity(i, 2);
     _lc.clearDisplay(i);
   }
 }
@@ -113,6 +114,7 @@ DisplayController& DisplayController::operator=(DisplayController const& other) 
   _displayCount = other._displayCount;
   _lc = LedControl(_dataPin, _clkPin, _loadPin, _displayCount);
 
+  // TODO: Free memory before this
   _state = new bool*[_height];
   for (int i = 0; i < _height; i++) {
     _state[i] = new bool[_width];
@@ -121,5 +123,6 @@ DisplayController& DisplayController::operator=(DisplayController const& other) 
     }
   }
 
+  initDisplay();
   return *this;
 }

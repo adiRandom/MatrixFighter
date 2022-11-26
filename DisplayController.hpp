@@ -26,8 +26,8 @@ private:
   };
 
   PixelCoords resolvePixel(uint8_t row, uint8_t column) const;
-  void clearDisplay();
-
+  void initDisplay();
+  void cleanup();
 
 public:
   DisplayController();
