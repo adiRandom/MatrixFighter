@@ -36,6 +36,29 @@ DisplayController::DisplayController(
   clearDisplay();
 }
 
+DisplayController::~DisplayController() {
+  for (int i = 0; i < width; i++) {
+    delete[] _state[i];
+  }
+
+  delete[] _state;
+}
+
+DisplayController::DisplayController()
+  : _dataPin{ 0 },
+    _loadPin{ 0 },
+    _clkPin{ 0 },
+    _width{ 0 },
+    _height{ 0 },
+    _horizontalDisplayCount{ 0 },
+    _lc{
+      LedControl(dataPin, clkPin, loadPin, displayCount)
+    },
+    _displaySize{ 0 },
+    _displayCount{ 0 },
+    _state{ nullptr } {
+}
+
 DisplayController::PixelCoords DisplayController::resolvePixel(uint8_t row, uint8_t column) const {
   DisplayController::PixelCoords pixel;
   pixel.row = row % _displaySize;

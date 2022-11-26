@@ -30,6 +30,7 @@ private:
 
 
 public:
+  DisplayController();
   DisplayController(
     uint8_t dataPin,
     uint8_t loadPin,
@@ -40,6 +41,8 @@ public:
     uint8_t displayCount,
     uint8_t displaySize
   );
+
+  ~DisplayController();
 
   void draw();
   void setPixel(uint8_t row, uint8_t column, bool value);
