@@ -73,3 +73,7 @@ void Direction::invertXAxis() {
 void Direction::invertYAxis() {
   _direction = _direction ^ INVERT_Y_AXIS_MASK;
 }
+
+uint8_t Direction::getDirection() {
+  return _direction;
+}
