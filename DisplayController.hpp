@@ -3,7 +3,7 @@
 
 #include "LedControl.h"
 #include <stdint.h>
-#include "Uitls.h"
+#include "Utils.h"
 
 class DisplayController {
 private:
@@ -16,6 +16,7 @@ private:
   uint8_t _horizontalDisplayCount;
   uint8_t _displayCount;
   bool** _state;
+  bool** _nextFrame;
 
   LedControl _lc;
 
@@ -28,6 +29,8 @@ private:
   PixelCoords resolvePixel(uint8_t row, uint8_t column) const;
   void initDisplay();
   void cleanup();
+  void emptyNextFrame();
+
 
 public:
   DisplayController();
@@ -49,6 +52,8 @@ public:
   void draw();
   void setPixel(uint8_t row, uint8_t column, bool value);
   void setPixels(Pixel pixels[], uint32_t length);
+  void commitNextFrame();
+  void initStateAndNextFrame(DisplayController* initValue);
 };
 
 #endif

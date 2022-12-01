@@ -22,23 +22,12 @@ DisplayController::DisplayController(
     _displaySize{ displaySize },
     _displayCount{ displayCount } {
 
-  _state = new bool*[height];
-  for (int i = 0; i < height; i++) {
-    _state[i] = new bool[width];
-    for (int j = 0; j < width; j++) {
-      _state[i][j] = false;
-    }
-  }
-
+  initStateAndNextFrame(nullptr);
   initDisplay();
 }
 
 DisplayController::~DisplayController() {
-  for (int i = 0; i < _width; i++) {
-    delete[] _state[i];
-  }
-
-  delete[] _state;
+  cleanup();
 }
 
 DisplayController::DisplayController()
@@ -81,7 +70,6 @@ void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
 }
 
 void DisplayController::draw() {
-  Serial.println(_lc.getDeviceCount());
   for (uint8_t i = 0; i < _height; i++) {
     for (uint8_t j = 0; j < _width; j++) {
       DisplayController::PixelCoords pixel = resolvePixel(i, j);
@@ -114,15 +102,36 @@ DisplayController& DisplayController::operator=(DisplayController const& other) 
   _displayCount = other._displayCount;
   _lc = LedControl(_dataPin, _clkPin, _loadPin, _displayCount);
 
-  // TODO: Free memory before this
+  cleanup();
+  initStateAndNextFrame(&other);
+  initDisplay();
+  return *this;
+}
+
+void DisplayController::cleanup() {
+  for (int i = 0; i < _width; i++) {
+    delete[] _state[i];
+    delete[] _nextFrame[i];
+  }
+
+  delete[] _state;
+  delete[] _nextFrame;
+}
+
+void DisplayController::initStateAndNextFrame(DisplayController *initValue = nullptr){
   _state = new bool*[_height];
   for (int i = 0; i < _height; i++) {
     _state[i] = new bool[_width];
     for (int j = 0; j < _width; j++) {
-      _state[i][j] = other._state[i][j];
+      _state[i][j] = initValue != nullptr ? initValue->_state[i][j] : false;
     }
   }
 
-  initDisplay();
-  return *this;
+  _nextFrame = new bool*[_height];
+  for (int i = 0; i < _height; i++) {
+    _nextFrame[i] = new bool[_width];
+    for (int j = 0; j < _width; j++) {
+      _nextFrame[i][j] =  initValue != nullptr ? initValue->_nextFrame[i][j] : false;
+    }
+  }
 }
