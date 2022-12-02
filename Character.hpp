@@ -5,34 +5,53 @@
 #include "Utils.h"
 #include "List.cpp"
 #include "Collider.hpp"
+#include "Arduino.h"
+
+uint32_t PUNCH_ANIMATION_TIME = 500;
 
 class Character {
+public:
+  enum Orientation {
+    LEFT,
+    RIGHT
+  };
+
 private:
   Point _origin;
   Collider _collider;
 
   enum State {
-    IDLE_FACE_RIGHT,
-    IDLE_FACE_LEFT,
-    PUNCHIG_LEFT,
-    PUNCHING_RIGHT,
+    IDLE,
+    PUNCHIG,
     CROUCHED,
+    CROUCHED_PUNCHING,
     JUMPING
   };
 
   State _state;
+  Orientation _orientation;
+  bool _isBlocking = false;
+
+  uint32_t _punchingTimer = millis();
 
   BoundingBox getBoundingBox();
 
 public:
   Character();
-  Character(Point initialPosition, bool isFacedRight = true);
-  void MoveLeft();
-  void MoveRight();
-  void Jump();
-  void Crouch();
-  void Punch();
-  void Rest();
+  Character(Point initialPosition, Orientation orientation = Orientation::RIGHT);
+  void moveLeft();
+  void moveRight();
+  void jump();
+  void crouch();
+  void punch();
+  void rest();
+  void block();
+  bool isBlocking();
+  bool isPunching();
+  /**
+   * Return whether or not the state of the character changed and we need to redraw the frame
+   */
+  bool runAnimations();
   Collider getCollider() const;
   List<Pixel> getPixels(int32_t displayHeight) const;
 };

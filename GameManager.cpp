@@ -21,15 +21,16 @@ GameManager& GameManager::operator=(GameManager const& other) {
     return *this;
   }
 
-  _displayController = other._displayController ;
-  _player1 = other._player1 ;
+  _displayController = other._displayController;
+  _player1 = other._player1;
   _inputController = other._inputController;
 
   return *this;
 }
 
 void GameManager::getNextFrame() {
-  if (!_changed) {
+  bool player1AnimationRes = _player1.runAnimations(); 
+  if (!_changed && !player1AnimationRes) {
     return;
   }
   List<Pixel> player1Pixels = _player1.getPixels(_displayController.getHeight());
@@ -44,12 +45,12 @@ void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
 
   if (player1Direction.isRight()) {
-    _player1.MoveRight();
+    _player1.moveRight();
     // TODO: Check orientation change
     _changed = true;
   }
-    if (player1Direction.isLeft()) {
-    _player1.MoveLeft();
+  if (player1Direction.isLeft()) {
+    _player1.moveLeft();
     // TODO: Check orientation change
     _changed = true;
   }
