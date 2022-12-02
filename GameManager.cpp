@@ -41,10 +41,15 @@ void GameManager::getNextFrame() {
 }
 
 void GameManager::handleInput() {
-  Direction player1Direction = _inputController.getJoyDirection();
-  Serial.println(player1Direction.getDirection());
+  Direction player1Direction = _inputController.getJoyDirection(true);
+
   if (player1Direction.isRight()) {
     _player1.MoveRight();
+    // TODO: Check orientation change
+    _changed = true;
+  }
+    if (player1Direction.isLeft()) {
+    _player1.MoveLeft();
     // TODO: Check orientation change
     _changed = true;
   }

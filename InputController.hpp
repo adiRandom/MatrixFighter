@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 #include "Direction.hpp"
+#include <Arduino.h>
 
 // The thresholds of the joystick from which we consider the input as being on the positive semi-axis or on the negative
 uint16_t const POSITIVE_THRESHOLD = 700;
 uint16_t const NEGATIVE_THRESHOLD = 300;
 uint8_t const INPUT_DEBOUNCE_TIME = 50;
+uint32_t const DEFAULT_THROTTLE_TIME = 100;
 
 class InputController {
 private:
@@ -16,6 +18,8 @@ private:
   bool _switchedAxes;
   bool _invertedXAxis;
   bool _invertedYAxis;
+  uint32_t _throttleTime;
+  uint32_t _throttleTimer = millis();
 
   // @Returns 1 for the positive semi-axis,
   // -1 for the negative one,
@@ -33,12 +37,14 @@ public:
     uint8_t joyYAxisPin,
     bool switchedAxis,
     bool invertedXAxis,
-    bool invertedYAxis
+    bool invertedYAxis,
+    uint32_t throttleTime = DEFAULT_THROTTLE_TIME
   );
 
   InputController& operator=(InputController const& other);
 
-  Direction getJoyDirection() const;
+  Direction getJoyDirection(bool throttled);
+  void setThrotthleTime(uint32_t throttleTime);
 };
 
 #endif

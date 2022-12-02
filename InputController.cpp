@@ -6,7 +6,8 @@ InputController::InputController()
     _joyYAxisPin{ 0 },
     _switchedAxes{ false },
     _invertedXAxis{ false },
-    _invertedYAxis{ false } {
+    _invertedYAxis{ false },
+    _throttleTime{ DEFAULT_THROTTLE_TIME } {
 }
 
 InputController::InputController(
@@ -14,13 +15,15 @@ InputController::InputController(
   uint8_t joyYAxisPin,
   bool switchedAxes = false,
   bool invertedXAxis = false,
-  bool invertedYAxis = false
+  bool invertedYAxis = false,
+  uint32_t throttleTime = DEFAULT_THROTTLE_TIME
 )
   : _joyXAxisPin{ joyXAxisPin },
     _joyYAxisPin{ joyYAxisPin },
     _switchedAxes{ switchedAxes },
     _invertedXAxis{ invertedXAxis },
-    _invertedYAxis{ invertedYAxis } {
+    _invertedYAxis{ invertedYAxis },
+    _throttleTime{ throttleTime } {
 }
 
 int8_t InputController::getJoyValueOnAxis(uint8_t pin) const {
@@ -35,7 +38,16 @@ int8_t InputController::getJoyValueOnAxis(uint8_t pin) const {
   }
 }
 
-Direction InputController::getJoyDirection() const {
+Direction InputController::getJoyDirection(bool throttled = false) {
+  if (throttled) {
+    uint32_t now = millis();
+
+    if (now - _throttleTimer <= _throttleTime) {
+      return Direction(0, 0);
+    } else {
+      _throttleTimer = now;
+    }
+  }
   int8_t xAxisVal = getJoyValueOnAxis(_joyXAxisPin);
   int8_t yAxisVal = getJoyValueOnAxis(_joyYAxisPin);
   Direction direction = Direction(xAxisVal, yAxisVal);
@@ -74,4 +86,8 @@ InputController& InputController::operator=(InputController const& other) {
   _invertedYAxis = other._invertedYAxis;
 
   return *this;
+}
+
+void InputController::setThrotthleTime(uint32_t throttleTime) {
+  _throttleTime = throttleTime;
 }

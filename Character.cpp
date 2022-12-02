@@ -51,3 +51,8 @@ void Character::MoveRight() {
   // TODO: Handle colission
   _origin.updateX(1);
 }
+
+void Character::MoveLeft() {
+  // TODO: Handle colission
+  _origin.updateX(-1);
+}
