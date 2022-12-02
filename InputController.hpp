@@ -11,11 +11,11 @@ uint8_t const INPUT_DEBOUNCE_TIME = 50;
 
 class InputController {
 private:
-  uint8_t const _joyXAxisPin;
-  uint8_t const _joyYAxisPin;
-  bool const _switchedAxes;
-  bool const _invertedXAxis;
-  bool const _invertedYAxis;
+  uint8_t _joyXAxisPin;
+  uint8_t _joyYAxisPin;
+  bool _switchedAxes;
+  bool _invertedXAxis;
+  bool _invertedYAxis;
 
   // @Returns 1 for the positive semi-axis,
   // -1 for the negative one,
@@ -27,6 +27,7 @@ private:
   Direction getDirectionWithInversions(Direction direction) const;
 
 public:
+  InputController();
   InputController(
     uint8_t joyXAxisPin,
     uint8_t joyYAxisPin,
@@ -34,6 +35,8 @@ public:
     bool invertedXAxis,
     bool invertedYAxis
   );
+
+  InputController& operator=(InputController const& other);
 
   Direction getJoyDirection() const;
 };

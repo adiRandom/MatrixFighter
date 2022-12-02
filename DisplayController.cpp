@@ -42,7 +42,8 @@ DisplayController::DisplayController()
     },
     _displaySize{ 0 },
     _displayCount{ 0 },
-    _state{ nullptr } {
+    _state{ nullptr },
+    _nextFrame{nullptr} {
 }
 
 DisplayController::PixelCoords DisplayController::resolvePixel(uint8_t row, uint8_t column) const {
@@ -58,14 +59,22 @@ DisplayController::PixelCoords DisplayController::resolvePixel(uint8_t row, uint
   return pixel;
 }
 
-void DisplayController::setPixel(uint8_t row, uint8_t column, bool value) {
-  _state[column][row] = value;
+void DisplayController::setPixel(Pixel pixel) {
+  _nextFrame[pixel.y][pixel.x] = pixel.value;
 }
 
 void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
   for (uint32_t i = 0; i < length; i++) {
     Pixel pixel = pixels[i];
-    _state[pixel.y][pixel.x] = pixel.value;
+    _nextFrame[pixel.y][pixel.x] = pixel.value;
+  }
+}
+
+void DisplayController::setPixels(List<Pixel> pixels) {
+  List<Pixel>::Node* node = pixels.getHead();
+  while (node != nullptr) {
+    setPixel(node->value);
+    node = node->next;
   }
 }
 
@@ -108,7 +117,29 @@ DisplayController& DisplayController::operator=(DisplayController const& other) 
   return *this;
 }
 
+DisplayController::DisplayController(DisplayController const& other)
+  : _dataPin{ other._dataPin },
+    _loadPin{ other._loadPin },
+    _clkPin{ other._clkPin },
+    _width{ other._width },
+    _height{ other._height },
+    _horizontalDisplayCount{ other._horizontalDisplayCount },
+    _lc{
+      LedControl(other._dataPin, other._clkPin, other._loadPin, other._displayCount)
+    },
+    _displaySize{ other._displaySize },
+    _displayCount{ other._displayCount } {
+
+  initStateAndNextFrame(&other);
+  initDisplay();
+}
+
 void DisplayController::cleanup() {
+
+  if (_state == nullptr || _nextFrame == nullptr) {
+    return;
+  }
+
   for (int i = 0; i < _width; i++) {
     delete[] _state[i];
     delete[] _nextFrame[i];
@@ -116,9 +147,12 @@ void DisplayController::cleanup() {
 
   delete[] _state;
   delete[] _nextFrame;
+
+  _state = nullptr;
+  _nextFrame = nullptr;
 }
 
-void DisplayController::initStateAndNextFrame(DisplayController *initValue = nullptr){
+void DisplayController::initStateAndNextFrame(DisplayController* initValue = nullptr) {
   _state = new bool*[_height];
   for (int i = 0; i < _height; i++) {
     _state[i] = new bool[_width];
@@ -131,7 +165,30 @@ void DisplayController::initStateAndNextFrame(DisplayController *initValue = nul
   for (int i = 0; i < _height; i++) {
     _nextFrame[i] = new bool[_width];
     for (int j = 0; j < _width; j++) {
-      _nextFrame[i][j] =  initValue != nullptr ? initValue->_nextFrame[i][j] : false;
+      _nextFrame[i][j] = initValue != nullptr ? initValue->_nextFrame[i][j] : false;
     }
   }
+}
+
+void DisplayController::emptyNextFrame() {
+  for (int i = 0; i < _height; i++) {
+    for (int j = 0; j < _width; j++) {
+      _nextFrame[i][j] = false;
+    }
+  }
+}
+
+void DisplayController::commitNextFrame() {
+  for (int i = 0; i < _height; i++) {
+    for (int j = 0; j < _width; j++) {
+      _state[i][j] = _nextFrame[i][j];
+    }
+  }
+  
+  draw();
+  emptyNextFrame();
+}
+
+uint8_t DisplayController::getHeight() const {
+  return _height;
 }

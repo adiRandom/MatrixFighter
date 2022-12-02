@@ -18,6 +18,8 @@ public:
   Point(int16_t x, int16_t y);
   int16_t getX() const;
   int16_t getY() const;
+  void updateX(int16_t delta);
+  void updateY(int16_t delta);
   Pixel toPixel(int32_t displayHeight) const;
 };
 

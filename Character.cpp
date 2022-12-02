@@ -1,5 +1,10 @@
 #include "Character.hpp"
 
+
+Character::Character()
+  : _origin{ Point{ 0, 0 } }, _collider{ Collider(getBoundingBox()) } {
+}
+
 Character::Character(Point initialPosition, bool isFacedRight = true)
   : _origin{ initialPosition }, _collider{ Collider(getBoundingBox()) } {
   _state = isFacedRight ? Character::State::IDLE_FACE_RIGHT : Character::State::IDLE_FACE_LEFT;
@@ -40,4 +45,9 @@ BoundingBox Character::getBoundingBox() {
         };
       }
   }
+}
+
+void Character::MoveRight() {
+  // TODO: Handle colission
+  _origin.updateX(1);
 }

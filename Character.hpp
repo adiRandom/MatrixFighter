@@ -25,6 +25,7 @@ private:
   BoundingBox getBoundingBox();
 
 public:
+  Character();
   Character(Point initialPosition, bool isFacedRight = true);
   void MoveLeft();
   void MoveRight();

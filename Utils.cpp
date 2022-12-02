@@ -18,3 +18,11 @@ Pixel Point::toPixel(int32_t displayHeight) const {
   // So we need to resolve this
   return Pixel{ _x, displayHeight - _y - 1, true };
 }
+
+void Point::updateX(int16_t delta) {
+  _x += delta;
+}
+
+void Point::updateY(int16_t delta) {
+  _y += delta;
+}

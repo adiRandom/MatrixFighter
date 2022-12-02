@@ -1,22 +1,20 @@
-#ifndef LIST_HPP
-#define LIST_HPP
+#ifndef LIST_CPP
+#define LIST_CPP
 
 template<class T>
 class List {
-private:
+
+public:
   struct Node {
     T value;
     Node* next = nullptr;
   };
 
+private:
   Node* _head = nullptr;
   Node* _tail = nullptr;
 
-  void copy(List other) {
-    if (&other == this) {
-      return;
-    }
-
+  void cleanup() {
     Node* node = _head;
 
     while (node != nullptr) {
@@ -27,6 +25,14 @@ private:
 
     _head = nullptr;
     _tail = nullptr;
+  }
+
+  void copy(List const& other) {
+    if (&other == this) {
+      return;
+    }
+
+    cleanup();
 
     if (other._head == nullptr) {
       return;
@@ -35,7 +41,7 @@ private:
     _head = new Node;
     _head->value = other._head->value;
 
-    node = _head;
+    Node* node = _head;
     Node* otherNode = other._head->next;
     while (otherNode != nullptr) {
       Node* newNode = new Node;
@@ -59,6 +65,10 @@ public:
   List& operator=(List other) {
     copy(other);
     return *this;
+  }
+
+  Node* getHead() {
+    return _head;
   }
 
   void push(T value) {
@@ -85,13 +95,7 @@ public:
   }
 
   ~List() {
-    Node* node = _head;
-
-    while (node != nullptr) {
-      Node* current = node;
-      node = node->next;
-      delete current;
-    }
+    cleanup();
   }
 };
 

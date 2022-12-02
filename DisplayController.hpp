@@ -4,6 +4,7 @@
 #include "LedControl.h"
 #include <stdint.h>
 #include "Utils.h"
+#include "List.cpp"
 
 class DisplayController {
 private:
@@ -44,16 +45,19 @@ public:
     uint8_t displayCount,
     uint8_t displaySize
   );
+  DisplayController(DisplayController const& other);
 
   ~DisplayController();
 
   DisplayController& operator=(DisplayController const& other);
 
   void draw();
-  void setPixel(uint8_t row, uint8_t column, bool value);
+  void setPixel(Pixel pixel);
   void setPixels(Pixel pixels[], uint32_t length);
+  void setPixels(List<Pixel> pixels);
   void commitNextFrame();
   void initStateAndNextFrame(DisplayController* initValue);
+  uint8_t getHeight() const;
 };
 
 #endif
