@@ -66,6 +66,6 @@ void GameManager::handleInput() {
   }
 }
 
-void GameManager::getLCDState() {
-  _lcdController.displayCurrentState();
+void GameManager::getLCDState(char const introMessage[]) {
+  _lcdController.displayCurrentState(introMessage);
 }

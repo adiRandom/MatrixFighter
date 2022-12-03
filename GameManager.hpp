@@ -25,7 +25,7 @@ public:
 
   void getNextFrame();
   void handleInput();
-  void getLCDState();
+  void getLCDState(char const introMessage[]);
 };
 
 #endif

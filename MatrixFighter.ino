@@ -45,7 +45,6 @@ LCDController lcdController(
   LCD_D5_PIN,
   LCD_D6_PIN,
   LCD_D7_PIN,
-  GREETING,
   LCD_HEIGHT,
   LCD_WIDTH,
   LCD_CONTRAST_PIN
@@ -73,5 +72,5 @@ void setup() {
 void loop() {
   gameManager.handleInput();
   gameManager.getNextFrame();
-  gameManager.getLCDState();
+  gameManager.getLCDState(GREETING);
 }
