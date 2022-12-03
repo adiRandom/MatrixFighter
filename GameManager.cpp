@@ -6,11 +6,13 @@
 GameManager::GameManager(
   DisplayController displayController,
   Character player1,
-  InputController inputController
+  InputController inputController,
+  LCDController lcdController
 )
   : _displayController{ displayController },
     _player1{ player1 },
-    _inputController{ inputController } {
+    _inputController{ inputController },
+    _lcdController{ lcdController } {
 }
 
 GameManager::GameManager() {
@@ -24,11 +26,15 @@ GameManager& GameManager::operator=(GameManager const& other) {
   _displayController = other._displayController;
   _player1 = other._player1;
   _inputController = other._inputController;
+  _lcdController = other._lcdController;
 
   return *this;
 }
 
 void GameManager::getNextFrame() {
+  if (!_lcdController.showGame()) {
+    return;
+  }
   bool player1AnimationRes = _player1.runAnimations();
   if (!_changed && !player1AnimationRes) {
     return;
@@ -58,4 +64,8 @@ void GameManager::handleInput() {
   if (isPlayer1Punching) {
     _changed = _player1.punch();
   }
+}
+
+void GameManager::getLCDState() {
+  _lcdController.displayCurrentState();
 }
