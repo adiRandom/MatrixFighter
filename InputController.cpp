@@ -87,6 +87,7 @@ InputController& InputController::operator=(InputController const& other) {
 
   _joyXAxisPin = other._joyXAxisPin;
   _joyYAxisPin = other._joyYAxisPin;
+  _punchButtonState = other._punchButtonState;
   _switchedAxes = other._switchedAxes;
   _invertedXAxis = other._invertedXAxis;
   _invertedYAxis = other._invertedYAxis;
@@ -117,10 +118,7 @@ InputController::readButtonState(
       updatedState.value = buttonReading;
 
       if (onStateChange != nullptr) {
-        if ((notifyOn == CHANGE) 
-            || (notifyOn == RISING && buttonReading == HIGH) 
-            || (notifyOn == FALLING && buttonReading == LOW)
-          ) {
+        if ((notifyOn == CHANGE) || (notifyOn == RISING && buttonReading == HIGH) || (notifyOn == FALLING && buttonReading == LOW)) {
           onStateChange(buttonReading);
         }
       }
@@ -132,5 +130,6 @@ InputController::readButtonState(
 }
 
 bool InputController::isPunching() {
-  readButtonState(_punchButtonState, nullptr, CHANGE);
+  _punchButtonState = readButtonState(_punchButtonState, nullptr, CHANGE);
+  return _punchButtonState.value == BUTTON_PRESSED;
 }

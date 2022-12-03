@@ -29,7 +29,7 @@ GameManager& GameManager::operator=(GameManager const& other) {
 }
 
 void GameManager::getNextFrame() {
-  bool player1AnimationRes = _player1.runAnimations(); 
+  bool player1AnimationRes = _player1.runAnimations();
   if (!_changed && !player1AnimationRes) {
     return;
   }
@@ -43,15 +43,19 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
+  bool isPlayer1Punching = _inputController.isPunching();
 
   if (player1Direction.isRight()) {
     _player1.moveRight();
     // TODO: Check orientation change
     _changed = true;
-  }
-  if (player1Direction.isLeft()) {
+  } else if (player1Direction.isLeft()) {
     _player1.moveLeft();
     // TODO: Check orientation change
     _changed = true;
+  }
+
+  if (isPlayer1Punching) {
+    _changed = _player1.punch();
   }
 }

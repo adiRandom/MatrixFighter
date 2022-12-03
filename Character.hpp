@@ -7,7 +7,7 @@
 #include "Collider.hpp"
 #include "Arduino.h"
 
-uint32_t PUNCH_ANIMATION_TIME = 500;
+uint32_t const PUNCH_ANIMATION_TIME = 500;
 
 class Character {
 public:
@@ -43,7 +43,10 @@ public:
   void moveRight();
   void jump();
   void crouch();
-  void punch();
+  /**
+   * Returns whether the action succeded or not
+   */
+  bool punch();
   void rest();
   void block();
   bool isBlocking();

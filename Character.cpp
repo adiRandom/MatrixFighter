@@ -51,14 +51,17 @@ BoundingBox Character::getBoundingBox() {
   switch (_state) {
     case Character::State::IDLE:
       {
-        return _orientation == Orientation::RIGHT ? BoundingBox{
-          Point{ _origin.getX(), _origin.getY() + 1 },
-          Point{ _origin.getX() + 1, _origin.getY() - 1 },
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 1, _origin.getY() - 1 },
+          };
+        } else {
+          return BoundingBox{
+            Point{ _origin.getX() - 1, _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() - 1 },
+          };
         }
-                                                  : BoundingBox{
-                                                      Point{ _origin.getX() - 1, _origin.getY() + 1 },
-                                                      Point{ _origin.getX(), _origin.getY() - 1 },
-                                                    };
       }
     default:
       {
@@ -80,13 +83,13 @@ void Character::moveLeft() {
   _origin.updateX(-1);
 }
 
-void Character::punch() {
+bool Character::punch() {
   switch (_state) {
     case State::PUNCHIG:
     case State::CROUCHED_PUNCHING:
     case State::JUMPING:
       {
-        return;
+        return false;
       }
     case State::CROUCHED:
       {
@@ -95,12 +98,13 @@ void Character::punch() {
       }
     default:
       {
+        Serial.println(_state);
         _state = State::PUNCHIG;
         break;
       }
-
-      _punchingTimer = millis();
   }
+  _punchingTimer = millis();
+  return true;
 }
 
 bool Character::runAnimations() {

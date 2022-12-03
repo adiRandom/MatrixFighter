@@ -47,11 +47,6 @@ void setup() {
   gameManager = GameManager(displayController, player1, inputController);
 }
 
-// void drawCharacter(Pixel pixel) {
-//   displayController.setPixel(pixel.x, pixel.y, pixel.value);
-//   Serial.println(pixel.y);
-// }
-
 void loop() {
   gameManager.handleInput();
   gameManager.getNextFrame();

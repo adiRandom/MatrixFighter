@@ -12,7 +12,7 @@ uint8_t const INPUT_DEBOUNCE_TIME = 50;
 uint32_t const DEFAULT_THROTTLE_TIME = 100;
 
 // The value emitted by the button when pressed
-byte BUTTON_PRESSED = LOW;
+byte const BUTTON_PRESSED = LOW;
 
 class InputController {
 private:
