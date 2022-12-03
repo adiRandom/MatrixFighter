@@ -2,12 +2,17 @@
 
 
 Character::Character()
-  : _origin{ Point{ 0, 0 } }, _collider{ Collider(getBoundingBox()) } {
+  : _origin{ Point{ 0, 0 } },
+    _collider{ Collider(getBoundingBox()) },
+    _orientation{ Orientation::RIGHT },
+    _state{ State::IDLE } {
 }
 
-Character::Character(Point initialPosition, Orientation isFacedRight = true)
-  : _origin{ initialPosition }, _collider{ Collider(getBoundingBox()) } {
-  _state = isFacedRight ? Character::State::IDLE_FACE_RIGHT : Character::State::IDLE_FACE_LEFT;
+Character::Character(Point initialPosition, Orientation orientation = Orientation::RIGHT)
+  : _origin{ initialPosition },
+    _collider{ Collider(getBoundingBox()) },
+    _orientation{ orientation },
+    _state{ State::IDLE } {
 }
 
 List<Pixel> Character::getPixels(int32_t displayHeight) const {
@@ -44,12 +49,16 @@ List<Pixel> Character::getPixels(int32_t displayHeight) const {
 
 BoundingBox Character::getBoundingBox() {
   switch (_state) {
-    case Character::State::IDLE_FACE_RIGHT:
+    case Character::State::IDLE:
       {
-        return BoundingBox{
+        return _orientation == Orientation::RIGHT ? BoundingBox{
           Point{ _origin.getX(), _origin.getY() + 1 },
           Point{ _origin.getX() + 1, _origin.getY() - 1 },
-        };
+        }
+                                                  : BoundingBox{
+                                                      Point{ _origin.getX() - 1, _origin.getY() + 1 },
+                                                      Point{ _origin.getX(), _origin.getY() - 1 },
+                                                    };
       }
     default:
       {
@@ -86,7 +95,7 @@ void Character::punch() {
       }
     default:
       {
-        _state = State::PUNCHING;
+        _state = State::PUNCHIG;
         break;
       }
 
@@ -94,7 +103,7 @@ void Character::punch() {
   }
 }
 
-void Character::runAnimations() {
+bool Character::runAnimations() {
   uint32_t now = millis();
 
   switch (_state) {
@@ -102,19 +111,19 @@ void Character::runAnimations() {
       {
         if (now - _punchingTimer > PUNCH_ANIMATION_TIME) {
           _state = State::IDLE;
-          break;
+          return true;
         }
       }
     case State::CROUCHED_PUNCHING:
       {
         if (now - _punchingTimer > PUNCH_ANIMATION_TIME) {
-          _state = State::CHROUCHED;
-          break;
+          _state = State::CROUCHED;
+          return true;
         }
       }
     default:
       {
-        break;
+        return false;
       }
   }
 }

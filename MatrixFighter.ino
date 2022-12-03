@@ -14,9 +14,17 @@ uint8_t const HORIZONTAL_DISPLAY_COUNT = 1;
 uint8_t const DISPLAY_COUNT = 1;
 uint8_t const PLAYER1_JOYSTICK_X_PIN = A0;
 uint8_t const PLAYER1_JOYSTICK_Y_PIN = A1;
+uint8_t const PLAYER1_PUNCH_PIN = 2;
 
 DisplayController displayController;
-InputController inputController(PLAYER1_JOYSTICK_X_PIN, PLAYER1_JOYSTICK_Y_PIN, true, false, false);
+InputController inputController(
+  PLAYER1_JOYSTICK_X_PIN,
+  PLAYER1_JOYSTICK_Y_PIN,
+  PLAYER1_PUNCH_PIN,
+  true,
+  false,
+  false
+);
 Character player1(Point{ 0, 1 });
 GameManager gameManager;
 

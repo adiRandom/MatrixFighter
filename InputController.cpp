@@ -13,6 +13,7 @@ InputController::InputController()
 InputController::InputController(
   uint8_t joyXAxisPin,
   uint8_t joyYAxisPin,
+  uint8_t punchButtonPin,
   bool switchedAxes = false,
   bool invertedXAxis = false,
   bool invertedYAxis = false,
@@ -24,6 +25,11 @@ InputController::InputController(
     _invertedXAxis{ invertedXAxis },
     _invertedYAxis{ invertedYAxis },
     _throttleTime{ throttleTime } {
+
+  _punchButtonState.pin = punchButtonPin;
+  pinMode(_joyXAxisPin, INPUT);
+  pinMode(_joyYAxisPin, INPUT);
+  pinMode(_punchButtonState.pin, INPUT_PULLUP);
 }
 
 int8_t InputController::getJoyValueOnAxis(uint8_t pin) const {
@@ -90,4 +96,41 @@ InputController& InputController::operator=(InputController const& other) {
 
 void InputController::setThrotthleTime(uint32_t throttleTime) {
   _throttleTime = throttleTime;
+}
+
+InputController::DebounceBtnReadingState
+InputController::readButtonState(
+  InputController::DebounceBtnReadingState currentBtnState,
+  void (*onStateChange)(byte),
+  uint8_t notifyOn = CHANGE
+) {
+  InputController::DebounceBtnReadingState updatedState = currentBtnState;
+  byte buttonReading = digitalRead(currentBtnState.pin);
+  uint32_t now = millis();
+
+  if (buttonReading != currentBtnState.lastReading) {
+    updatedState.lastReadingTime = now;
+  }
+
+  if (now - updatedState.lastReadingTime > INPUT_DEBOUNCE_TIME) {
+    if (buttonReading != currentBtnState.value) {
+      updatedState.value = buttonReading;
+
+      if (onStateChange != nullptr) {
+        if ((notifyOn == CHANGE) 
+            || (notifyOn == RISING && buttonReading == HIGH) 
+            || (notifyOn == FALLING && buttonReading == LOW)
+          ) {
+          onStateChange(buttonReading);
+        }
+      }
+    }
+  }
+
+  updatedState.lastReading = buttonReading;
+  return updatedState;
+}
+
+bool InputController::isPunching() {
+  readButtonState(_punchButtonState, nullptr, CHANGE);
 }
