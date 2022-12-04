@@ -4,19 +4,17 @@
 #include "MemoryFree.h"
 
 MenuEntry::MenuEntry()
-  : _name{ nullptr }, _selectorPos{
+  : _id{ 0 }, _selectorPos{
       Point{ 0, 0 }
     } {
 }
 
-MenuEntry::MenuEntry(char const name[], Point selectorPos)
-  : _selectorPos{ selectorPos } {
-  setName(name);
+MenuEntry::MenuEntry(uint16_t id, Point selectorPos)
+  : _selectorPos{ selectorPos }, _id{id} {
 }
 
 MenuEntry::MenuEntry(MenuEntry const& menuEntry)
-  : _selectorPos{ menuEntry._selectorPos } {
-  setName(menuEntry._name);
+  : _selectorPos{ menuEntry._selectorPos }, _id{menuEntry._id} {
 }
 
 MenuEntry& MenuEntry::operator=(MenuEntry const& menuEntry) {
@@ -25,50 +23,13 @@ MenuEntry& MenuEntry::operator=(MenuEntry const& menuEntry) {
   }
 
   _selectorPos = menuEntry._selectorPos;
-  setName(menuEntry._name);
+  _id = menuEntry._id;
   return *this;
 }
 
-MenuEntry::~MenuEntry() {
-  if (_name != nullptr) {
-    delete[] _name;
-    _name = nullptr;
-  }
-}
-
-char* MenuEntry::getName() const {
-  return _name;
+uint16_t MenuEntry::getId() const {
+  return _id;
 }
 Point MenuEntry::getSelectorPos() const {
   return _selectorPos;
-}
-
-// void MenuEntry::setName(char const name[]) {
-//   if (_name != nullptr) {
-//     delete[] _name;
-//   }
-
-//   _name = new char[strlen(name) + 1];
-//   strcpy(_name, name);
-// }
-
-void MenuEntry::setName(char* name) {
-  Serial.println("Set");
-  Serial.println(name);
-  if (_name != nullptr) {
-    Serial.println("deleting");
-
-    delete[] _name;
-    _name = nullptr;
-  }
-
-  Serial.println("Prepare");
-  Serial.println(freeMemory());
-  _name = new char[strlen(name) + 1];
-  Serial.println("Aloc");
-  Serial.println(freeMemory());
-
-  strcpy(_name, name);
-  Serial.println("Done");
-  Serial.println(_name);
 }

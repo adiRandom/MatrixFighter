@@ -98,7 +98,6 @@ bool Character::punch() {
       }
     default:
       {
-        Serial.println(_state);
         _state = State::PUNCHIG;
         break;
       }

@@ -32,7 +32,7 @@ GameManager& GameManager::operator=(GameManager const& other) {
 }
 
 void GameManager::getNextFrame() {
-  if (!_lcdController.showGame()) {
+  if (!isPlayingGame()) {
     return;
   }
   bool player1AnimationRes = _player1.runAnimations();
@@ -49,17 +49,15 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
+  // Rename this to primaryButton
   bool isPlayer1Punching = _inputController.isPunching();
 
-  if (player1Direction.isRight()) {
-    _player1.moveRight();
-    // TODO: Check orientation change
-    _changed = true;
-  } else if (player1Direction.isLeft()) {
-    _player1.moveLeft();
-    // TODO: Check orientation change
-    _changed = true;
+  if (isPlayingGame()) {
+    handlePlayer1JoyInput(player1Direction);
+  } else {
+    handleMenuJoyInput(player1Direction);
   }
+
 
   if (isPlayer1Punching) {
     _changed = _player1.punch();
@@ -68,4 +66,25 @@ void GameManager::handleInput() {
 
 void GameManager::getLCDState(char const introMessage[]) {
   _lcdController.displayCurrentState(introMessage);
+}
+
+
+void GameManager::handlePlayer1JoyInput(Direction direction) {
+  if (direction.isRight()) {
+    _player1.moveRight();
+    // TODO: Check orientation change
+    _changed = true;
+  } else if (direction.isLeft()) {
+    _player1.moveLeft();
+    // TODO: Check orientation change
+    _changed = true;
+  }
+}
+
+void GameManager::handleMenuJoyInput(Direction direction) {
+  _lcdController.moveSelector(direction);
+}
+
+bool GameManager::isPlayingGame() {
+  return _lcdController.isShowingGame();
 }

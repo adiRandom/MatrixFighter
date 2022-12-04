@@ -5,19 +5,16 @@
 class MenuEntry {
 private:
 
-  char* _name = nullptr;
+  uint16_t _id;
   Point _selectorPos;
-
-  void setName(char* name);
 public:
 
   MenuEntry();
-  MenuEntry(char const name[], Point selectorPos);
+  MenuEntry(uint16_t id, Point selectorPos);
   MenuEntry(MenuEntry const& menuEntry);
   MenuEntry& operator=(MenuEntry const& menuEntry);
-  virtual ~MenuEntry();
 
-  char* getName() const;
+  uint16_t getId() const;
   Point getSelectorPos() const;
 };
 
