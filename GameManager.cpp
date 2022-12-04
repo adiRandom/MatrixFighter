@@ -49,18 +49,20 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
-  // Rename this to primaryButton
-  bool isPlayer1Punching = _inputController.isPunching();
+  bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
 
   if (isPlayingGame()) {
     handlePlayer1JoyInput(player1Direction);
+
+    if (isPlayer1PrimaryBtnPressed) {
+      _changed = _player1.punch();
+    }
   } else {
     handleMenuJoyInput(player1Direction);
-  }
 
-
-  if (isPlayer1Punching) {
-    _changed = _player1.punch();
+    if (isPlayer1PrimaryBtnPressed) {
+      _lcdController.select();
+    }
   }
 }
 
@@ -72,11 +74,9 @@ void GameManager::getLCDState(char const introMessage[]) {
 void GameManager::handlePlayer1JoyInput(Direction direction) {
   if (direction.isRight()) {
     _player1.moveRight();
-    // TODO: Check orientation change
     _changed = true;
   } else if (direction.isLeft()) {
     _player1.moveLeft();
-    // TODO: Check orientation change
     _changed = true;
   }
 }

@@ -15,7 +15,7 @@ uint8_t const HORIZONTAL_DISPLAY_COUNT = 1;
 uint8_t const DISPLAY_COUNT = 1;
 uint8_t const PLAYER1_JOYSTICK_X_PIN = A0;
 uint8_t const PLAYER1_JOYSTICK_Y_PIN = A1;
-uint8_t const PLAYER1_PUNCH_PIN = 13;
+uint8_t const PLAYER1_PRIMARY_BTN_PIN = 13;
 uint8_t const LCD_RS_PIN = 9;
 uint8_t const LCD_ENABLE_PIN = 8;
 uint8_t const LCD_D4_PIN = 7;
@@ -31,7 +31,7 @@ DisplayController displayController;
 InputController inputController(
   PLAYER1_JOYSTICK_X_PIN,
   PLAYER1_JOYSTICK_Y_PIN,
-  PLAYER1_PUNCH_PIN,
+  PLAYER1_PRIMARY_BTN_PIN,
   true,
   false,
   true

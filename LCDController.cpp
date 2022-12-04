@@ -162,6 +162,27 @@ char const* LCDController::getMainMenuEntryName(uint16_t id) const {
   }
 }
 
+char const* LCDController::getAboutMenuEntryName(uint16_t id) const {
+  switch (id) {
+    case ABOUT_GAME_NAME_ID:
+      {
+        return "MATRIX FIGHTER";
+      }
+    case ABOUT_CREATOR_NAME_ID:
+      {
+        return "Adrian Pascu";
+      }
+    case ABOUT_CREATOR_GITHUB_USERNAME_ID:
+      {
+        return "@adiRandom";
+      }
+    default:
+      {
+        return "";
+      }
+  }
+}
+
 void LCDController::initDisplay() {
   pinMode(_contrastPin, OUTPUT);
   _lcd.begin(_width, _height);
@@ -177,6 +198,10 @@ void LCDController::moveSelector(Direction direction) {
     case State::MENU:
       {
         moveMainMenuSelector(direction);
+      }
+    case State::ABOUT:
+      {
+        moveAboutMenuSelector(direction);
       }
     default:
       {
@@ -205,7 +230,7 @@ void LCDController::showMainMenu() {
     _lcd.print(getMainMenuEntryName(entry.getId()));
   }
   _lastState = State::MENU;
-  _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_INDEX];
+  _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
 }
 
 void LCDController::moveMainMenuSelector(Direction direction) {
@@ -217,36 +242,36 @@ void LCDController::moveMainMenuSelector(Direction direction) {
     case MAIN_MENU_PLAY_ID:
       {
         if (direction.isRight()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_ID];
         } else if (direction.isDown()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_ID];
         }
         break;
       }
     case MAIN_MENU_SETTINGS_ID:
       {
         if (direction.isLeft()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
         } else if (direction.isDown()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_ID];
         }
         break;
       }
     case MAIN_MENU_ABOUT_ID:
       {
         if (direction.isRight()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_ID];
         } else if (direction.isUp()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
         }
         break;
       }
     case MAIN_MENU_HELP_ID:
       {
         if (direction.isLeft()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_ID];
         } else if (direction.isUp()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_INDEX];
+          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_ID];
         }
         break;
       }
@@ -255,4 +280,85 @@ void LCDController::moveMainMenuSelector(Direction direction) {
         break;
       }
   }
+}
+
+void LCDController::select() {
+  switch (_state) {
+    case State::MENU:
+      {
+        selectInMainMenu();
+        break;
+      }
+    default:
+      {
+        return;
+      }
+  }
+}
+
+void LCDController::selectInMainMenu() {
+  if (_selectedEntry == nullptr) {
+    return;
+  }
+
+  switch (_selectedEntry->getId()) {
+    case MAIN_MENU_ABOUT_ID:
+      {
+        _state = State::ABOUT;
+      }
+    default:
+      {
+        return;
+      }
+  }
+}
+
+void LCDController::moveAboutMenuSelector(Direction direction) {
+  if (_selectedEntry == nullptr) {
+    return;
+  }
+
+  switch (_selectedEntry->getId()) {
+    case ABOUT_GAME_NAME_ID:
+      {
+        if (direction.isDown()) {
+          showAbout(ABOUT_CREATOR_NAME_ID);
+          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_NAME_ID];
+        }
+        break;
+      }
+    case ABOUT_CREATOR_NAME_ID:
+      {
+        if (direction.isDown()) {
+          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_GITHUB_USERNAME_ID];
+        } else if (direction.isUp()) {
+          showAbout(ABOUT_CREATOR_NAME_ID);
+          _selectedEntry = &_aboutEntries[ABOUT_GAME_NAME_ID];
+        }
+        break;
+      }
+    case ABOUT_CREATOR_GITHUB_USERNAME_ID:
+      {
+        if (direction.isUp()) {
+          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_NAME_ID];
+        }
+        break;
+      }
+    default:
+      {
+        return "";
+      }
+  }
+}
+
+void LCDController::showAbout(uint16_t topEntryIntex) {
+  _lcd.clear();
+
+  for (int i = topEntryIntex; i < ABOUT_MENU_SIZE && i < topEntryIntex + 1; i++) {
+    MenuEntry entry = _aboutEntries[i];
+    _lcd.setCursor(entry.getSelectorPos().getX() + 1, entry.getSelectorPos().getY());
+    _lcd.print(getMainMenuEntryName(entry.getId()));
+  }
+  _lastState = State::ABOUT;
+  _selectedEntry = &_mainMenuEntries[ABOUT_GAME_NAME_ID];
 }

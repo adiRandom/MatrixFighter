@@ -31,7 +31,7 @@ private:
     uint8_t pin = 0;
   };
 
-  DebounceBtnReadingState _punchButtonState;
+  DebounceBtnReadingState _primaryBtnState;
 
   // @Returns 1 for the positive semi-axis,
   // -1 for the negative one,
@@ -57,7 +57,7 @@ public:
   InputController(
     uint8_t joyXAxisPin,
     uint8_t joyYAxisPin,
-    uint8_t punchButtonPin,
+    uint8_t primaryBtnPin,
     bool switchedAxis,
     bool invertedXAxis,
     bool invertedYAxis,
@@ -67,7 +67,7 @@ public:
   InputController& operator=(InputController const& other);
 
   Direction getJoyDirection(bool throttled);
-  bool isPunching();
+  bool isPrimaryBtnPressed();
   void setThrotthleTime(uint32_t throttleTime);
 };
 

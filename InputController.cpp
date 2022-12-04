@@ -13,7 +13,7 @@ InputController::InputController()
 InputController::InputController(
   uint8_t joyXAxisPin,
   uint8_t joyYAxisPin,
-  uint8_t punchButtonPin,
+  uint8_t primaryBtnPin,
   bool switchedAxes = false,
   bool invertedXAxis = false,
   bool invertedYAxis = false,
@@ -26,10 +26,10 @@ InputController::InputController(
     _invertedYAxis{ invertedYAxis },
     _throttleTime{ throttleTime } {
 
-  _punchButtonState.pin = punchButtonPin;
+  _primaryBtnState.pin = primaryBtnPin;
   pinMode(_joyXAxisPin, INPUT);
   pinMode(_joyYAxisPin, INPUT);
-  pinMode(_punchButtonState.pin, INPUT_PULLUP);
+  pinMode(_primaryBtnState.pin, INPUT_PULLUP);
 }
 
 int8_t InputController::getJoyValueOnAxis(uint8_t pin) const {
@@ -87,7 +87,7 @@ InputController& InputController::operator=(InputController const& other) {
 
   _joyXAxisPin = other._joyXAxisPin;
   _joyYAxisPin = other._joyYAxisPin;
-  _punchButtonState = other._punchButtonState;
+  _primaryBtnState = other._primaryBtnState;
   _switchedAxes = other._switchedAxes;
   _invertedXAxis = other._invertedXAxis;
   _invertedYAxis = other._invertedYAxis;
@@ -129,7 +129,7 @@ InputController::readButtonState(
   return updatedState;
 }
 
-bool InputController::isPunching() {
-  _punchButtonState = readButtonState(_punchButtonState, nullptr, CHANGE);
-  return _punchButtonState.value == BUTTON_PRESSED;
+bool InputController::isPrimaryBtnPressed() {
+  _primaryBtnState = readButtonState(_primaryBtnState, nullptr, CHANGE);
+  return _primaryBtnState.value == BUTTON_PRESSED;
 }

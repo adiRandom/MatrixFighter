@@ -10,6 +10,8 @@ uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
 uint8_t const INTRO_MESSAGE_SIZE = 16;
 uint8_t const MAIN_MENU_SIZE = 4;
+uint8_t const ABOUT_MENU_SIZE = 3;
+
 
 uint16_t const MAIN_MENU_PLAY_ID = 0;
 uint16_t const MAIN_MENU_SETTINGS_ID = 1;
@@ -21,10 +23,9 @@ uint16_t const MAIN_MENU_HELP_ID = 3;
 // char const MAIN_MENU_ABOUT_NAME[2] = "A";
 // char const MAIN_MENU_HELP_NAME[5] = "HELP";
 
-uint16_t const MAIN_MENU_PLAY_INDEX = 0;
-uint16_t const MAIN_MENU_SETTINGS_INDEX = 1;
-uint16_t const MAIN_MENU_ABOUT_INDEX = 2;
-uint16_t const MAIN_MENU_HELP_INDEX = 3;
+uint16_t const ABOUT_GAME_NAME_ID = 0;
+uint16_t const ABOUT_CREATOR_NAME_ID = 1;
+uint16_t const ABOUT_CREATOR_GITHUB_USERNAME_ID = 2;
 
 class LCDController {
 private:
@@ -48,28 +49,40 @@ private:
     MenuEntry(MAIN_MENU_HELP_ID, Point{ 7, 1 })
   };
 
+  MenuEntry _aboutEntries[ABOUT_MENU_SIZE] = {
+    MenuEntry(ABOUT_GAME_NAME_ID, Point{ 0, 0 }),
+    MenuEntry(ABOUT_CREATOR_NAME_ID, Point{ 0, 0 }),
+    MenuEntry(ABOUT_CREATOR_GITHUB_USERNAME_ID, Point{ 0, 1 })
+  };
+
   MenuEntry* _selectedEntry = nullptr;
-  MenuEntry*  _lastSelectedEntry = nullptr;
+  MenuEntry* _lastSelectedEntry = nullptr;
 
   enum State {
     INTRO,
     MENU,
     SETTINGS,
-    GAME
+    GAME,
+    ABOUT,
+    HELP,
+    HIGHSCORE
   };
   State _state = State::INTRO;
   State _lastState = State::INTRO;
 
   void displaySelector();
   char const* getMainMenuEntryName(uint16_t id) const;
+  char const* getAboutMenuEntryName(uint16_t id) const;
   void initDisplay();
   void startGame();
   void showGame();
-  void showAbout();
+  void showAbout(uint16_t topEntryIntex);
   void showTutorial();
   void showIntro(char const introMessage[INTRO_MESSAGE_SIZE]);
   void showMainMenu();
   void moveMainMenuSelector(Direction direction);
+  void moveAboutMenuSelector(Direction direction);
+  void selectInMainMenu();
 
 public:
 
@@ -91,7 +104,8 @@ public:
   void displayCurrentState(char const introMessage[INTRO_MESSAGE_SIZE]);
 
   void moveSelector(Direction direction);
-  void closeSubmenu();
+  void select();
+  void back();
 
   bool isShowingGame() const;
 };
