@@ -104,6 +104,10 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
         break;
       }
   }
+
+  // The screen was cleared due to the change of state
+  // Redisplay the selector
+  displaySelector();
 }
 
 bool LCDController::isShowingGame() const {
@@ -120,7 +124,7 @@ void LCDController::displaySelector() {
     _lastSelectedEntry->getSelectorPos().getY()
   );
 
-  _lcd.print("");
+  _lcd.print(" ");
 
   _lcd.setCursor(
     _selectedEntry->getSelectorPos().getX(),
@@ -132,7 +136,7 @@ void LCDController::displaySelector() {
 }
 
 char const* LCDController::getMainMenuEntryName(uint16_t id) const {
-  Serial.println(freeMemory());
+  // Serial.println(freeMemory());
   switch (id) {
     case MAIN_MENU_PLAY_ID:
       {
@@ -188,13 +192,11 @@ void LCDController::showIntro(char const introMessage[INTRO_MESSAGE_SIZE]) {
   } else {
     if (millis() - _introTimer > INTRO_SHOW_TIME) {
       _state = State::MENU;
-      _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_INDEX];
     }
   }
 }
 
 void LCDController::showMainMenu() {
-  Serial.print(freeMemory());
   _lcd.clear();
 
   for (int i = 0; i < MAIN_MENU_SIZE; i++) {
@@ -203,6 +205,7 @@ void LCDController::showMainMenu() {
     _lcd.print(getMainMenuEntryName(entry.getId()));
   }
   _lastState = State::MENU;
+  _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_INDEX];
 }
 
 void LCDController::moveMainMenuSelector(Direction direction) {

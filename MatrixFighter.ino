@@ -34,7 +34,7 @@ InputController inputController(
   PLAYER1_PUNCH_PIN,
   true,
   false,
-  false
+  true
 );
 Character player1(Point{ 0, 1 });
 GameManager gameManager;
