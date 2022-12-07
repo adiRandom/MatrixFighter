@@ -39,7 +39,7 @@ void GameManager::getNextFrame() {
   if (!_changed && !player1AnimationRes) {
     return;
   }
-  List<Pixel> player1Pixels = _player1.getPixels(DISPLAY_HEIGHT           );
+  List<Pixel> player1Pixels = _player1.getPixels(DISPLAY_HEIGHT);
 
   _displayController.setPixels(player1Pixels);
   _displayController.commitNextFrame();
@@ -50,6 +50,7 @@ void GameManager::getNextFrame() {
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
   bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
+  bool isPlayer1SecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
 
   if (isPlayingGame()) {
     handlePlayer1JoyInput(player1Direction);
@@ -62,6 +63,10 @@ void GameManager::handleInput() {
 
     if (isPlayer1PrimaryBtnPressed) {
       _lcdController.select();
+    }
+
+    if (isPlayer1SecondaryBtnPressed) {
+      _lcdController.back();
     }
   }
 }

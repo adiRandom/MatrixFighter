@@ -99,6 +99,16 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
         showMainMenu();
         break;
       }
+    case State::ABOUT:
+      {
+        showAbout(0);
+        break;
+      }
+    case State::GAME:
+      {
+        showGame();
+        break;
+      }
     default:
       {
         break;
@@ -136,7 +146,6 @@ void LCDController::displaySelector() {
 }
 
 char const* LCDController::getMainMenuEntryName(uint16_t id) const {
-  // Serial.println(freeMemory());
   switch (id) {
     case MAIN_MENU_PLAY_ID:
       {
@@ -152,7 +161,6 @@ char const* LCDController::getMainMenuEntryName(uint16_t id) const {
       }
     case MAIN_MENU_HELP_ID:
       {
-        // TODO: Fix this
         return "HELP";
       }
     default:
@@ -305,6 +313,12 @@ void LCDController::selectInMainMenu() {
     case MAIN_MENU_ABOUT_ID:
       {
         _state = State::ABOUT;
+        break;
+      }
+    case MAIN_MENU_PLAY_ID:
+      {
+        _state = State::GAME;
+        break;
       }
     default:
       {
@@ -332,7 +346,7 @@ void LCDController::moveAboutMenuSelector(Direction direction) {
         if (direction.isDown()) {
           _selectedEntry = &_aboutEntries[ABOUT_CREATOR_GITHUB_USERNAME_ID];
         } else if (direction.isUp()) {
-          showAbout(ABOUT_CREATOR_NAME_ID);
+          showAbout(ABOUT_GAME_NAME_ID);
           _selectedEntry = &_aboutEntries[ABOUT_GAME_NAME_ID];
         }
         break;
@@ -354,11 +368,33 @@ void LCDController::moveAboutMenuSelector(Direction direction) {
 void LCDController::showAbout(uint16_t topEntryIntex) {
   _lcd.clear();
 
-  for (int i = topEntryIntex; i < ABOUT_MENU_SIZE && i < topEntryIntex + 1; i++) {
-    MenuEntry entry = _aboutEntries[i];
-    _lcd.setCursor(entry.getSelectorPos().getX() + 1, entry.getSelectorPos().getY());
-    _lcd.print(getMainMenuEntryName(entry.getId()));
+  for (int i = 0; i < 2; i++) {
+    MenuEntry entry = _aboutEntries[topEntryIntex + i];
+    _lcd.setCursor(
+      entry.getSelectorPos().getX() + 1,
+      i
+    );
+    _lcd.print(getAboutMenuEntryName(entry.getId()));
   }
   _lastState = State::ABOUT;
   _selectedEntry = &_mainMenuEntries[ABOUT_GAME_NAME_ID];
+}
+
+void LCDController::showGame() {
+  _lcd.clear();
+  _lastState = State::GAME;
+}
+
+void LCDController::back() {
+  switch (_state) {
+    case State::ABOUT:
+      {
+        _state = State::MENU;
+        break;
+      }
+    default:
+      {
+        break;
+      }
+  }
 }

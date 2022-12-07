@@ -32,6 +32,7 @@ private:
   };
 
   DebounceBtnReadingState _primaryBtnState;
+  DebounceBtnReadingState _secondaryBtnState;
 
   // @Returns 1 for the positive semi-axis,
   // -1 for the negative one,
@@ -58,6 +59,7 @@ public:
     uint8_t joyXAxisPin,
     uint8_t joyYAxisPin,
     uint8_t primaryBtnPin,
+    uint8_t secondaryBtnPin,
     bool switchedAxis,
     bool invertedXAxis,
     bool invertedYAxis,
@@ -68,6 +70,7 @@ public:
 
   Direction getJoyDirection(bool throttled);
   bool isPrimaryBtnPressed();
+  bool isSecondaryBtnPressed();
   void setThrotthleTime(uint32_t throttleTime);
 };
 

@@ -72,14 +72,14 @@ void Direction::switchAxes() {
 }
 
 void Direction::invertXAxis() {
-  if (_direction == NONE) {
+  if (!isLeft() && !isRight()) {
     return;
   }
   _direction = _direction ^ INVERT_X_AXIS_MASK;
 }
 
 void Direction::invertYAxis() {
-  if (_direction == NONE) {
+  if (!isUp() && !isDown()) {
     return;
   }
   _direction = _direction ^ INVERT_Y_AXIS_MASK;
