@@ -6,18 +6,18 @@
 #include "Utils.h"
 #include "List.cpp"
 
+uint8_t const DISPLAY_SIZE = 8;
+uint8_t const DISPLAY_WIDTH = 8;
+uint8_t const DISPLAY_HEIGHT = 8;
+uint8_t const DISPLAY_COUNT = 1;
+
 class DisplayController {
 private:
   uint8_t _dataPin;
   uint8_t _loadPin;
   uint8_t _clkPin;
-  uint8_t _width;
-  uint8_t _height;
-  uint8_t _displaySize;
-  uint8_t _horizontalDisplayCount;
-  uint8_t _displayCount;
-  bool** _state;
-  bool** _nextFrame;
+  bool _state[DISPLAY_HEIGHT][DISPLAY_WIDTH];
+  bool _nextFrame[DISPLAY_HEIGHT][DISPLAY_WIDTH];
 
   LedControl _lc;
 
@@ -29,7 +29,6 @@ private:
 
   PixelCoords resolvePixel(uint8_t row, uint8_t column) const;
   void initDisplay();
-  void cleanup();
   void emptyNextFrame();
 
 
@@ -38,16 +37,9 @@ public:
   DisplayController(
     uint8_t dataPin,
     uint8_t loadPin,
-    uint8_t clkPin,
-    uint8_t width,
-    uint8_t height,
-    uint8_t horizontalDisplayCount,
-    uint8_t displayCount,
-    uint8_t displaySize
+    uint8_t clkPin
   );
   DisplayController(DisplayController const& other);
-
-  ~DisplayController();
 
   DisplayController& operator=(DisplayController const& other);
 
@@ -57,7 +49,6 @@ public:
   void setPixels(List<Pixel> pixels);
   void commitNextFrame();
   void initStateAndNextFrame(DisplayController* initValue);
-  uint8_t getHeight() const;
 };
 
 #endif

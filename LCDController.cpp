@@ -153,7 +153,7 @@ char const* LCDController::getMainMenuEntryName(uint16_t id) const {
     case MAIN_MENU_HELP_ID:
       {
         // TODO: Fix this
-        // return "HELP";
+        return "HELP";
       }
     default:
       {

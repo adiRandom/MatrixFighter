@@ -39,7 +39,7 @@ void GameManager::getNextFrame() {
   if (!_changed && !player1AnimationRes) {
     return;
   }
-  List<Pixel> player1Pixels = _player1.getPixels(_displayController.getHeight());
+  List<Pixel> player1Pixels = _player1.getPixels(DISPLAY_HEIGHT           );
 
   _displayController.setPixels(player1Pixels);
   _displayController.commitNextFrame();
