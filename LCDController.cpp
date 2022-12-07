@@ -87,7 +87,6 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
   if (_state == _lastState && _state != State::INTRO) {
     return;
   }
-
   switch (_state) {
     case State::INTRO:
       {
@@ -109,6 +108,11 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
         showGame();
         break;
       }
+    case State::HELP:
+      {
+        showHelp(0);
+        break;
+      }
     default:
       {
         break;
@@ -125,7 +129,7 @@ bool LCDController::isShowingGame() const {
 }
 
 void LCDController::displaySelector() {
-  if (_selectedEntry == nullptr || _lastSelectedEntry == _selectedEntry) {
+  if (_selectedEntry == nullptr || _lastSelectedEntry == _selectedEntry || _selectedEntry->getSelectorPos().getX() == -1) {
     return;
   }
 
@@ -170,6 +174,31 @@ char const* LCDController::getMainMenuEntryName(uint16_t id) const {
   }
 }
 
+char const* LCDController::getHelpMenuEntryName(uint16_t id) const {
+  switch (id) {
+    case HELP_MOVE_LINE_ID:
+      {
+        return "Move and crouch";
+      }
+    case HELP_JOYSTICK_LINE_ID:
+      {
+        return "With joystick";
+      }
+    case HELP_ATK_LINE_ID:
+      {
+        return "Hit - select btn";
+      }
+    case HELP_DEF_LINE_ID:
+      {
+        return "Block - back btn";
+      }
+    default:
+      {
+        return "";
+      }
+  }
+}
+
 char const* LCDController::getAboutMenuEntryName(uint16_t id) const {
   switch (id) {
     case ABOUT_GAME_NAME_ID:
@@ -206,10 +235,16 @@ void LCDController::moveSelector(Direction direction) {
     case State::MENU:
       {
         moveMainMenuSelector(direction);
+        break;
       }
     case State::ABOUT:
       {
         moveAboutMenuSelector(direction);
+        break;
+      }
+    case State::HELP:
+      {
+        moveHelpMenuSelector(direction);
       }
     default:
       {
@@ -315,6 +350,11 @@ void LCDController::selectInMainMenu() {
         _state = State::ABOUT;
         break;
       }
+    case MAIN_MENU_HELP_ID:
+      {
+        _state = State::HELP;
+        break;
+      }
     case MAIN_MENU_PLAY_ID:
       {
         _state = State::GAME;
@@ -365,11 +405,62 @@ void LCDController::moveAboutMenuSelector(Direction direction) {
   }
 }
 
-void LCDController::showAbout(uint16_t topEntryIntex) {
+void LCDController::moveHelpMenuSelector(Direction direction) {
+  if (_selectedEntry == nullptr) {
+    return;
+  }
+
+  switch (_selectedEntry->getId()) {
+    case HELP_MOVE_LINE_ID:
+      {
+        if (direction.isDown()) {
+          showHelp(HELP_JOYSTICK_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_JOYSTICK_LINE_ID];
+        }
+        break;
+      }
+    case HELP_JOYSTICK_LINE_ID:
+      {
+        if (direction.isDown()) {
+          showHelp(HELP_ATK_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_ATK_LINE_ID];
+        } else if (direction.isUp()) {
+          showAbout(HELP_MOVE_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_MOVE_LINE_ID];
+        }
+        break;
+      }
+    case HELP_ATK_LINE_ID:
+      {
+        if (direction.isDown()) {
+          showHelp(HELP_DEF_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_DEF_LINE_ID];
+        } else if (direction.isUp()) {
+          showAbout(HELP_JOYSTICK_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_JOYSTICK_LINE_ID];
+        }
+        break;
+      }
+    case HELP_DEF_LINE_ID:
+      {
+        if (direction.isUp()) {
+          showHelp(HELP_ATK_LINE_ID);
+          _selectedEntry = &_helpMenuEntries[HELP_ATK_LINE_ID];
+        }
+        break;
+      }
+    default:
+      {
+        return "";
+      }
+  }
+}
+
+void LCDController::showAbout(uint16_t topEntryIndex) {
   _lcd.clear();
 
   for (int i = 0; i < 2; i++) {
-    MenuEntry entry = _aboutEntries[topEntryIntex + i];
+    MenuEntry entry = _aboutEntries[topEntryIndex + i];
     _lcd.setCursor(
       entry.getSelectorPos().getX() + 1,
       i
@@ -377,7 +468,7 @@ void LCDController::showAbout(uint16_t topEntryIntex) {
     _lcd.print(getAboutMenuEntryName(entry.getId()));
   }
   _lastState = State::ABOUT;
-  _selectedEntry = &_mainMenuEntries[ABOUT_GAME_NAME_ID];
+  _selectedEntry = &_aboutEntries[ABOUT_GAME_NAME_ID];
 }
 
 void LCDController::showGame() {
@@ -392,9 +483,30 @@ void LCDController::back() {
         _state = State::MENU;
         break;
       }
+    case State::HELP:
+      {
+        _state = State::MENU;
+        _lcd.noAutoscroll();
+        break;
+      }
     default:
       {
         break;
       }
   }
+}
+
+void LCDController::showHelp(uint8_t topEntryIndex) {
+  _lcd.clear();
+
+  for (int i = 0; i < 2; i++) {
+    MenuEntry entry = _helpMenuEntries[topEntryIndex + i];
+    _lcd.setCursor(
+      entry.getSelectorPos().getX() + 1,
+      i
+    );
+    _lcd.print(getHelpMenuEntryName(entry.getId()));
+  }
+  _lastState = State::HELP;
+  _selectedEntry = &_helpMenuEntries[HELP_MOVE_LINE_ID];
 }

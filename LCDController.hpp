@@ -10,22 +10,24 @@ uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
 uint8_t const INTRO_MESSAGE_SIZE = 16;
 uint8_t const MAIN_MENU_SIZE = 4;
+uint8_t const HELP_MENU_SIZE = 4;
 uint8_t const ABOUT_MENU_SIZE = 3;
 
 
-uint16_t const MAIN_MENU_PLAY_ID = 0;
-uint16_t const MAIN_MENU_SETTINGS_ID = 1;
-uint16_t const MAIN_MENU_ABOUT_ID = 2;
-uint16_t const MAIN_MENU_HELP_ID = 3;
+uint8_t const MAIN_MENU_PLAY_ID = 0;
+uint8_t const MAIN_MENU_SETTINGS_ID = 1;
+uint8_t const MAIN_MENU_ABOUT_ID = 2;
+uint8_t const MAIN_MENU_HELP_ID = 3;
 
-// char const MAIN_MENU_PLAY_NAME[5] = "PLAY";
-// char const MAIN_MENU_SETTINGS_NAME[9] = "SETTINGS";
-// char const MAIN_MENU_ABOUT_NAME[2] = "A";
-// char const MAIN_MENU_HELP_NAME[5] = "HELP";
+uint8_t const ABOUT_GAME_NAME_ID = 0;
+uint8_t const ABOUT_CREATOR_NAME_ID = 1;
+uint8_t const ABOUT_CREATOR_GITHUB_USERNAME_ID = 2;
 
-uint16_t const ABOUT_GAME_NAME_ID = 0;
-uint16_t const ABOUT_CREATOR_NAME_ID = 1;
-uint16_t const ABOUT_CREATOR_GITHUB_USERNAME_ID = 2;
+uint8_t const HELP_MOVE_LINE_ID = 0;
+uint8_t const HELP_JOYSTICK_LINE_ID = 1;
+uint8_t const HELP_ATK_LINE_ID = 2;
+uint8_t const HELP_DEF_LINE_ID = 3;
+
 
 class LCDController {
 private:
@@ -55,6 +57,13 @@ private:
     MenuEntry(ABOUT_CREATOR_GITHUB_USERNAME_ID, Point{ 0, 1 })
   };
 
+  MenuEntry _helpMenuEntries[HELP_MENU_SIZE] = {
+    MenuEntry(HELP_MOVE_LINE_ID, Point{ -1, -1 }),
+    MenuEntry(HELP_JOYSTICK_LINE_ID, Point{ -1, -1 }),
+    MenuEntry(HELP_ATK_LINE_ID, Point{ -1, -1 }),
+    MenuEntry(HELP_DEF_LINE_ID, Point{ -1, -1 })
+  };
+
   MenuEntry* _selectedEntry = nullptr;
   MenuEntry* _lastSelectedEntry = nullptr;
 
@@ -73,15 +82,17 @@ private:
   void displaySelector();
   char const* getMainMenuEntryName(uint16_t id) const;
   char const* getAboutMenuEntryName(uint16_t id) const;
+  char const* getHelpMenuEntryName(uint16_t id) const;
   void initDisplay();
   void startGame();
   void showGame();
   void showAbout(uint16_t topEntryIntex);
-  void showTutorial();
+  void showHelp(uint8_t topEntryIndex);
   void showIntro(char const introMessage[INTRO_MESSAGE_SIZE]);
   void showMainMenu();
   void moveMainMenuSelector(Direction direction);
   void moveAboutMenuSelector(Direction direction);
+  void moveHelpMenuSelector(Direction direction);
   void selectInMainMenu();
 
 public:
