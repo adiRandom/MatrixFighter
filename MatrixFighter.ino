@@ -58,7 +58,6 @@ void setup() {
     DISPLAY_CLK_PIN
   );
 
-
   gameManager = GameManager(displayController, player1, inputController, lcdController);
 }
 

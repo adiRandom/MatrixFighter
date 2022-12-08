@@ -479,7 +479,7 @@ void LCDController::showGame() {
 }
 
 void LCDController::startGame() {
-  _lastState = State::GAME;
+  _state = State::GAME;
 }
 
 void LCDController::back() {

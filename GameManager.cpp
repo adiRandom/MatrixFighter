@@ -2,6 +2,7 @@
 #include "List.cpp"
 #include "Utils.h"
 #include "Direction.hpp"
+#include "MemoryFree.h"
 
 GameManager::GameManager(
   DisplayController displayController,
@@ -49,18 +50,18 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
-    Serial.println(player1Direction.getDirection());
+
   bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
 
-  if (_isPlayingGame) {
-      handlePlayer1JoyInput(player1Direction);
 
-      if (isPlayer1PrimaryBtnPressed) {
-        _changed = _player1.punch();
-      }
+  if (_isPlayingGame) {
+    handlePlayer1JoyInput(player1Direction);
+
+    if (isPlayer1PrimaryBtnPressed) {
+      _changed = _player1.punch();
     }
-  else {
+  } else {
     handleMenuJoyInput(player1Direction);
 
     if (isPlayer1PrimaryBtnPressed) {
@@ -89,10 +90,9 @@ void GameManager::handlePlayer1JoyInput(Direction direction) {
     _player1.moveLeft();
   } else if (direction.isDown()) {
     _player1.crouch();
-  } else if(direction.isUp()){
+  } else if (direction.isUp()) {
     // Do nothing
-  } 
-  else {
+  } else {
     _player1.rest();
   }
 

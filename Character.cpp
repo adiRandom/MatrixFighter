@@ -1,4 +1,5 @@
 #include "Character.hpp"
+#include "MemoryFree.h"
 
 
 Character::Character()
@@ -180,10 +181,12 @@ void Character::crouch() {
 }
 
 void Character::rest() {
+  Serial.println(_state);
   switch (_state) {
     case State::BLOCKING:
     case State::IDLE:
       {
+
         return;
       }
     case State::PUNCHIG:
