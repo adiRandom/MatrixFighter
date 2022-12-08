@@ -13,13 +13,10 @@ private:
   InputController _inputController;
   LCDController _lcdController;
   bool _changed = true;
+  bool _isPlayingGame = false;
 
   void handlePlayer1JoyInput(Direction direction);
   void handleMenuJoyInput(Direction direciton);
-  /**
-   * Return false if we are controlling the menu and true if we are playing
-   */
-  bool isPlayingGame();
 
 public:
   GameManager();

@@ -88,3 +88,7 @@ void Direction::invertYAxis() {
 uint8_t Direction::getDirection() {
   return _direction;
 }
+
+bool Direction::isNeutral() const {
+  return !(isUp() || isDown() || isLeft() || isRight());
+}

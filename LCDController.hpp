@@ -71,6 +71,8 @@ private:
     INTRO,
     MENU,
     SETTINGS,
+    // Intermediary state before select button is released
+    PREGAME,
     GAME,
     ABOUT,
     HELP,
@@ -84,7 +86,7 @@ private:
   char const* getAboutMenuEntryName(uint16_t id) const;
   char const* getHelpMenuEntryName(uint16_t id) const;
   void initDisplay();
-  void startGame();
+
   void showGame();
   void showAbout(uint16_t topEntryIntex);
   void showHelp(uint8_t topEntryIndex);
@@ -95,9 +97,9 @@ private:
   void moveHelpMenuSelector(Direction direction);
   void selectInMainMenu();
 
-public:
+    public :
 
-  LCDController();
+    LCDController();
   LCDController(
     uint8_t rsPin,
     uint8_t enablePin,
@@ -117,8 +119,8 @@ public:
   void moveSelector(Direction direction);
   void select();
   void back();
-
-  bool isShowingGame() const;
+  void startGame();
+  bool isPreGame() const;
 };
 
 #endif

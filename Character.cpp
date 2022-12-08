@@ -39,6 +39,25 @@ List<Pixel> Character::getPixels(int32_t displayHeight) const {
         }
         break;
       }
+    case State::CROUCHED:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          result.push(_origin.toPixel(displayHeight));
+          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
+          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
+        }
+        break;
+      }
+    case State::CROUCHED_PUNCHING:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          result.push(_origin.toPixel(displayHeight));
+          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
+          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
+          result.push(Point{ _origin.getX() + 2, _origin.getY() }.toPixel(displayHeight));
+        }
+        break;
+      }
     default:
       {
         break;
@@ -60,6 +79,33 @@ BoundingBox Character::getBoundingBox() {
           return BoundingBox{
             Point{ _origin.getX() - 1, _origin.getY() + 1 },
             Point{ _origin.getX(), _origin.getY() - 1 },
+          };
+        }
+      }
+    case State::CROUCHED:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 1, _origin.getY() },
+          };
+        }
+      }
+    case State::PUNCHIG:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 2, _origin.getY() - 1 },
+          };
+        }
+      }
+    case State::CROUCHED_PUNCHING:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 2, _origin.getY() },
           };
         }
       }
@@ -87,7 +133,6 @@ bool Character::punch() {
   switch (_state) {
     case State::PUNCHIG:
     case State::CROUCHED_PUNCHING:
-    case State::JUMPING:
       {
         return false;
       }
@@ -104,6 +149,61 @@ bool Character::punch() {
   }
   _punchingTimer = millis();
   return true;
+}
+
+void Character::crouch() {
+  switch (_state) {
+    case State::CROUCHED:
+    case State::CROUCHED_BLOCKING:
+    case State::CROUCHED_PUNCHING:
+      {
+        return;
+      }
+    case State::PUNCHIG:
+    case State::IDLE:
+      {
+        _state = State::CROUCHED;
+        break;
+      }
+    case State::BLOCKING:
+      {
+        _state = State::CROUCHED_BLOCKING;
+        break;
+      }
+    default:
+      {
+        return;
+      }
+  }
+
+  _origin.updateY(-1);
+}
+
+void Character::rest() {
+  switch (_state) {
+    case State::BLOCKING:
+    case State::IDLE:
+      {
+        return;
+      }
+    case State::PUNCHIG:
+    case State::CROUCHED:
+    case State::CROUCHED_PUNCHING:
+      {
+        _state = State::IDLE;
+        break;
+      }
+    case State::CROUCHED_BLOCKING:
+      {
+        _state = State::BLOCKING;
+        break;
+      }
+    default:
+      {
+        return;
+      }
+  }
+  _origin.updateY(1);
 }
 
 bool Character::runAnimations() {

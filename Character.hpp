@@ -25,12 +25,12 @@ private:
     PUNCHIG,
     CROUCHED,
     CROUCHED_PUNCHING,
-    JUMPING
+    BLOCKING,
+    CROUCHED_BLOCKING
   };
 
-  State _state;
+  State _state = State::IDLE;
   Orientation _orientation;
-  bool _isBlocking = false;
 
   uint32_t _punchingTimer = millis();
 
@@ -47,8 +47,9 @@ public:
    * Returns whether the action succeded or not
    */
   bool punch();
-  void rest();
   void block();
+  // Uncrouch
+  void rest();
   bool isBlocking();
   bool isPunching();
   /**

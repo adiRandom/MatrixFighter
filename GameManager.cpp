@@ -32,7 +32,7 @@ GameManager& GameManager::operator=(GameManager const& other) {
 }
 
 void GameManager::getNextFrame() {
-  if (!isPlayingGame()) {
+  if (!_isPlayingGame) {
     return;
   }
   bool player1AnimationRes = _player1.runAnimations();
@@ -49,20 +49,26 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
+    Serial.println(player1Direction.getDirection());
   bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
 
-  if (isPlayingGame()) {
-    handlePlayer1JoyInput(player1Direction);
+  if (_isPlayingGame) {
+      handlePlayer1JoyInput(player1Direction);
 
-    if (isPlayer1PrimaryBtnPressed) {
-      _changed = _player1.punch();
+      if (isPlayer1PrimaryBtnPressed) {
+        _changed = _player1.punch();
+      }
     }
-  } else {
+  else {
     handleMenuJoyInput(player1Direction);
 
     if (isPlayer1PrimaryBtnPressed) {
       _lcdController.select();
+    } else if (_lcdController.isPreGame()) {
+      // We are releasing the button after selecting PLAY
+      _lcdController.startGame();
+      _isPlayingGame = true;
     }
 
     if (isPlayer1SecondaryBtnPressed) {
@@ -79,17 +85,20 @@ void GameManager::getLCDState(char const introMessage[]) {
 void GameManager::handlePlayer1JoyInput(Direction direction) {
   if (direction.isRight()) {
     _player1.moveRight();
-    _changed = true;
   } else if (direction.isLeft()) {
     _player1.moveLeft();
-    _changed = true;
+  } else if (direction.isDown()) {
+    _player1.crouch();
+  } else if(direction.isUp()){
+    // Do nothing
+  } 
+  else {
+    _player1.rest();
   }
+
+  _changed = true;
 }
 
 void GameManager::handleMenuJoyInput(Direction direction) {
   _lcdController.moveSelector(direction);
-}
-
-bool GameManager::isPlayingGame() {
-  return _lcdController.isShowingGame();
 }

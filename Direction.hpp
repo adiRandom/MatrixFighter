@@ -30,7 +30,7 @@ public:
   bool isRight() const;
   bool isUp() const;
   bool isDown() const;
-
+  bool isNeutral() const;
   void switchAxes();
   void invertXAxis();
   void invertYAxis();

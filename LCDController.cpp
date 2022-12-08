@@ -124,8 +124,8 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
   displaySelector();
 }
 
-bool LCDController::isShowingGame() const {
-  return _state == State::GAME;
+bool LCDController::isPreGame() const {
+  return _state == State::PREGAME;
 }
 
 void LCDController::displaySelector() {
@@ -357,7 +357,9 @@ void LCDController::selectInMainMenu() {
       }
     case MAIN_MENU_PLAY_ID:
       {
-        _state = State::GAME;
+        _state = State::PREGAME;
+        // Set this so we won't update the screen before game starts
+        _lastState = State::PREGAME;
         break;
       }
     default:
@@ -473,6 +475,10 @@ void LCDController::showAbout(uint16_t topEntryIndex) {
 
 void LCDController::showGame() {
   _lcd.clear();
+  _lastState = State::GAME;
+}
+
+void LCDController::startGame() {
   _lastState = State::GAME;
 }
 
