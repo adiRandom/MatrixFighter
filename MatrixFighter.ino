@@ -4,6 +4,7 @@
 #include "InputController.hpp"
 #include "GameManager.hpp"
 #include "LCDController.hpp"
+#include "DisplayConstants.h"
 
 uint8_t const DISPLAY_DATA_PIN = 12;
 uint8_t const DISPLAY_CLK_PIN = 11;
@@ -25,7 +26,7 @@ uint8_t const LCD_CONTRAST_PIN = 3;
 char const* GREETING = "HELLO BRAWLER!";
 
 DisplayController displayController;
-InputController inputController(
+InputController player1InputController(
   PLAYER1_JOYSTICK_X_PIN,
   PLAYER1_JOYSTICK_Y_PIN,
   PLAYER1_PRIMARY_BTN_PIN,
@@ -35,6 +36,18 @@ InputController inputController(
   true
 );
 Character player1(Point{ 0, 1 });
+
+InputController player2InputController(
+  PLAYER1_JOYSTICK_X_PIN,
+  PLAYER1_JOYSTICK_Y_PIN,
+  PLAYER1_PRIMARY_BTN_PIN,
+  PLAYER1_SECONDARY_BTN_PIN,
+  true,
+  false,
+  true
+);
+Character player2(Point{ DISPLAY_WIDTH - 1, 1 }, Character::Orientation::LEFT);
+
 GameManager gameManager;
 LCDController lcdController(
   LCD_RS_PIN,
@@ -58,7 +71,7 @@ void setup() {
     DISPLAY_CLK_PIN
   );
 
-  gameManager = GameManager(displayController, player1, inputController, lcdController);
+  gameManager = GameManager(displayController, player1, player1InputController, player2, player2InputController, lcdController);
 }
 
 void loop() {

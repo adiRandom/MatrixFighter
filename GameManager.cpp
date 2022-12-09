@@ -3,14 +3,18 @@
 #include "MemoryFree.h"
 
 GameManager::GameManager(
-  DisplayController displayController,
-  Character player1,
-  InputController inputController,
-  LCDController lcdController
+  DisplayController& displayController,
+  Character& player1,
+  InputController& player1InputController,
+  Character& player2,
+  InputController& player2InputController,
+  LCDController& lcdController
 )
   : _displayController{ displayController },
     _player1{ player1 },
-    _inputController{ inputController },
+    _player1InputController{ player1InputController },
+    _player2{ player2 },
+    _player2InputController{ player2InputController },
     _lcdController{ lcdController } {
 }
 
@@ -24,7 +28,9 @@ GameManager& GameManager::operator=(GameManager const& other) {
 
   _displayController = other._displayController;
   _player1 = other._player1;
-  _inputController = other._inputController;
+  _player1InputController = other._player1InputController;
+  _player2 = other._player2;
+  _player2InputController = other._player2InputController;
   _lcdController = other._lcdController;
 
   return *this;
@@ -35,41 +41,38 @@ void GameManager::getNextFrame() {
     return;
   }
   bool player1AnimationRes = _player1.runAnimations();
-  if (!_changed && !player1AnimationRes) {
+  bool player2AnimationRes = _player2.runAnimations();
+  if (!_changed && !player1AnimationRes && !player2AnimationRes) {
     return;
   }
 
-  uint8_t bufferLength = _player1.getPixels(_player1CharacterBuffer);
+  uint8_t bufferLength = _player1.getPixels(_playerCharacterBuffer);
+  _displayController.setPixels(_playerCharacterBuffer, bufferLength);
 
-  _displayController.setPixels(_player1CharacterBuffer, bufferLength);
+  bufferLength = _player2.getPixels(_playerCharacterBuffer);
+  _displayController.setPixels(_playerCharacterBuffer, bufferLength);
+
   _displayController.commitNextFrame();
-
   _changed = false;
 }
 
 void GameManager::handleInput() {
-  Direction player1Direction = _inputController.getJoyDirection(true);
-  bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
-  bool isPlayer1SecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
+  Direction player1Direction = _player1InputController.getJoyDirection(true);
+  bool isPlayer1PrimaryBtnPressed = _player1InputController.isPrimaryBtnPressed();
+  bool isPlayer1SecondaryBtnPressed = _player1InputController.isSecondaryBtnPressed();
+
+  Direction player2Direction = _player1InputController.getJoyDirection(true);
+  bool isPlayer2PrimaryBtnPressed = _player2InputController.isPrimaryBtnPressed();
+  bool isPlayer2SecondaryBtnPressed = _player2InputController.isSecondaryBtnPressed();
 
   if (_isPlayingGame) {
-    bool hasMoved = handlePlayerJoyInput(_player1, player1Direction);
-    bool hasDoneAction = handlePlayerBtnInput(_player1, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
-    _changed = hasMoved || hasDoneAction;
+    bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
+    bool _didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);
+
+    _changed = _didPlayer1Update || _didPlayer2Update;
   } else {
     handleMenuJoyInput(player1Direction);
-
-    if (isPlayer1PrimaryBtnPressed) {
-      _lcdController.select();
-    } else if (_lcdController.isPreGame()) {
-      // We are releasing the button after selecting PLAY
-      _lcdController.startGame();
-      _isPlayingGame = true;
-    }
-
-    if (isPlayer1SecondaryBtnPressed) {
-      _lcdController.back();
-    }
+    handleMenuBtnInput(isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
   }
 }
 
@@ -128,4 +131,26 @@ void GameManager::updateMovementRestrictions(Character& player, Direction lastDi
     Serial.println("Quack");
     player.setCanGoRight(false);
   }
+}
+
+void GameManager::handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed) {
+  if (isPrimaryPressed) {
+    _lcdController.select();
+  } else if (_lcdController.isPreGame()) {
+    // We are releasing the button after selecting PLAY
+    _lcdController.startGame();
+    _isPlayingGame = true;
+  }
+
+  if (isSecondaryPressed) {
+    _lcdController.back();
+  }
+}
+
+bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool isPrimaryPressed, bool isSecondaryPressed) {
+
+  bool hasMoved = handlePlayerJoyInput(player, direciton);
+  bool hasDoneAction = handlePlayerBtnInput(player, isPrimaryPressed, isSecondaryPressed);
+
+  return hasMoved || hasDoneAction;
 }

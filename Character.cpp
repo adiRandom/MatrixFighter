@@ -110,6 +110,11 @@ BoundingBox Character::getBoundingBox() {
             Point{ _origin.getX(), _origin.getY() + 1 },
             Point{ _origin.getX() + 1, _origin.getY() },
           };
+        } else {
+          return BoundingBox{
+            Point{ _origin.getX() - 1, _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() },
+          };
         }
       }
     // case State::PUNCHIG:

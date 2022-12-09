@@ -12,29 +12,44 @@
 class GameManager {
 private:
   DisplayController _displayController;
-  Character _player1;
-  InputController _inputController;
   LCDController _lcdController;
+
+  Character _player1;
+  InputController _player1InputController;
+
+  Character _player2;
+  InputController _player2InputController;
+
   bool _changed = true;
   bool _isPlayingGame = false;
-  Pixel _player1CharacterBuffer[CHARACTER_MODEL_BUFFER_SIZE];
+
+  Pixel _playerCharacterBuffer[CHARACTER_MODEL_BUFFER_SIZE];
+
   Collider _screenWalls{ BoundingBox{
     Point{ -1, -1 },
     Point{ DISPLAY_WIDTH, DISPLAY_HEIGHT } } };
 
   bool handlePlayerJoyInput(Character& player, Direction direction);
   void handleMenuJoyInput(Direction direciton);
+  void handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed);
   bool handlePlayerBtnInput(Character& player, bool isPrimaryPressed, bool isSecondaryPressed);
   bool canPlayerMove(Character& player, Direction direction);
   void updateMovementRestrictions(Character& player, Direction lastDirection);
 
+  /**
+   * Return if frame should be updated
+   */
+  bool handlePlayerInput(Character& player, Direction direciton, bool isPrimaryPressed, bool isSecondaryPressed);
+
 public:
   GameManager();
   GameManager(
-    DisplayController _displayController,
-    Character player1,
-    InputController inputController,
-    LCDController lcdController
+    DisplayController& displayController,
+    Character& player1,
+    InputController& player1InputController,
+    Character& player2,
+    InputController& player2InputController,
+    LCDController& lcdController
   );
   GameManager& operator=(GameManager const& other);
 
