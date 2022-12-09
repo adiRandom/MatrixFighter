@@ -25,6 +25,10 @@ public:
     * Each arg takes 0,1,-1 as its value representing the neutral, positive and negative part of the axis
     */
   Direction(int8_t xAxis, int8_t yAxis);
+  Direction(uint8_t binaryForm);
+  Direction();
+
+  Direction& operator=(Direction const& other);
 
   bool isLeft() const;
   bool isRight() const;

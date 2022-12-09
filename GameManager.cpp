@@ -7,7 +7,7 @@ GameManager::GameManager(
   Character& player1,
   InputController& player1InputController,
   Character& player2,
-  InputController& player2InputController,
+  SlaveInputController& player2InputController,
   LCDController& lcdController
 )
   : _displayController{ displayController },
@@ -61,9 +61,11 @@ void GameManager::handleInput() {
   bool isPlayer1PrimaryBtnPressed = _player1InputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _player1InputController.isSecondaryBtnPressed();
 
-  Direction player2Direction = _player1InputController.getJoyDirection(true);
-  bool isPlayer2PrimaryBtnPressed = _player2InputController.isPrimaryBtnPressed();
-  bool isPlayer2SecondaryBtnPressed = _player2InputController.isSecondaryBtnPressed();
+  InputBundle player2InputBundle = _player2InputController.getBundle();
+
+  Direction player2Direction = player2InputBundle.direction;
+  bool isPlayer2PrimaryBtnPressed = player2InputBundle.isPrimaryBtnPressed;
+  bool isPlayer2SecondaryBtnPressed = player2InputBundle.isSecondaryBtnPressed;
 
   if (_isPlayingGame) {
     bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
@@ -128,7 +130,6 @@ void GameManager::updateMovementRestrictions(Character& player, Direction lastDi
   } else if (lastDirection.isLeft()) {
     player.setCanGoLeft(false);
   } else if (lastDirection.isRight()) {
-    Serial.println("Quack");
     player.setCanGoRight(false);
   }
 }

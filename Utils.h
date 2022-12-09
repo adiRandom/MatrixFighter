@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <stdint.h>
+#include "Direction.hpp"
 
 struct Pixel {
   uint8_t x;
@@ -26,6 +27,12 @@ public:
 struct BoundingBox {
   Point topLeft;
   Point bottomRight;
+};
+
+struct InputBundle {
+  Direction direction;
+  bool isPrimaryBtnPressed;
+  bool isSecondaryBtnPressed;
 };
 
 #endif

@@ -36,6 +36,22 @@ Direction::Direction(int8_t xAxis, int8_t yAxis) {
   }
 }
 
+Direction::Direction(uint8_t binaryForm) {
+  _direction = binaryForm;
+}
+
+Direction::Direction() {
+}
+
+Direction& Direction::operator=(const Direction& other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  _direction = other._direction;
+  return *this;
+}
+
 bool Direction::isLeft() const {
   return _direction & Direction::LEFT;
 }

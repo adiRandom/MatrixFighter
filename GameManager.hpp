@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include "Collider.hpp"
 #include "DisplayConstants.h"
+#include "SlaveInputController.hpp"
 
 class GameManager {
 private:
@@ -18,7 +19,7 @@ private:
   InputController _player1InputController;
 
   Character _player2;
-  InputController _player2InputController;
+  SlaveInputController _player2InputController;
 
   bool _changed = true;
   bool _isPlayingGame = false;
@@ -48,7 +49,7 @@ public:
     Character& player1,
     InputController& player1InputController,
     Character& player2,
-    InputController& player2InputController,
+    SlaveInputController& player2InputController,
     LCDController& lcdController
   );
   GameManager& operator=(GameManager const& other);
