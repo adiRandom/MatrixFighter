@@ -9,7 +9,6 @@ private:
   BoundingBox _boundingBox;
 public:
   Collider(BoundingBox boundingBox);
-  bool isTouching(Collider other) const;
   bool isColliding(Collider other) const;
   void updateBoundingBox(BoundingBox boundingBox);
 };

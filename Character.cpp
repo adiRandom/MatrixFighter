@@ -6,14 +6,18 @@ Character::Character()
   : _origin{ Point{ 0, 0 } },
     _collider{ Collider(getBoundingBox()) },
     _orientation{ Orientation::RIGHT },
-    _state{ State::IDLE } {
+    _state{ State::IDLE },
+    _canGoLeft{ false },
+    _canGoRight{ true } {
 }
 
 Character::Character(Point initialPosition, Orientation orientation = Orientation::RIGHT)
   : _origin{ initialPosition },
     _collider{ Collider(getBoundingBox()) },
     _orientation{ orientation },
-    _state{ State::IDLE } {
+    _state{ State::IDLE },
+    _canGoLeft{ orientation == Orientation::LEFT },
+    _canGoRight{ orientation == Orientation::RIGHT } {
 }
 
 uint8_t Character::getPixels(Pixel buffer[]) const {
@@ -83,6 +87,7 @@ BoundingBox Character::getBoundingBox() {
   switch (_state) {
     case Character::State::IDLE:
     case State::BLOCKING:
+    case State::PUNCHIG:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -98,6 +103,7 @@ BoundingBox Character::getBoundingBox() {
       }
     case State::CROUCHED:
     case State::CROUCHED_BLOCKING:
+    case State::CROUCHED_PUNCHING:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -106,24 +112,24 @@ BoundingBox Character::getBoundingBox() {
           };
         }
       }
-    case State::PUNCHIG:
-      {
-        if (_orientation == Orientation::RIGHT) {
-          return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
-            Point{ _origin.getX() + 2, _origin.getY() - 1 },
-          };
-        }
-      }
-    case State::CROUCHED_PUNCHING:
-      {
-        if (_orientation == Orientation::RIGHT) {
-          return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
-            Point{ _origin.getX() + 2, _origin.getY() },
-          };
-        }
-      }
+    // case State::PUNCHIG:
+    //   {
+    //     if (_orientation == Orientation::RIGHT) {
+    //       return BoundingBox{
+    //         Point{ _origin.getX(), _origin.getY() + 1 },
+    //         Point{ _origin.getX() + 2, _origin.getY() - 1 },
+    //       };
+    //     }
+    //   }
+    // case State::CROUCHED_PUNCHING:
+    //   {
+    //     if (_orientation == Orientation::RIGHT) {
+    //       return BoundingBox{
+    //         Point{ _origin.getX(), _origin.getY() + 1 },
+    //         Point{ _origin.getX() + 2, _origin.getY() },
+    //       };
+    //     }
+    //   }
     default:
       {
         return BoundingBox{
@@ -135,13 +141,13 @@ BoundingBox Character::getBoundingBox() {
 }
 
 void Character::moveRight() {
-  // TODO: Handle colission
   _origin.updateX(1);
+  refreshBoundingBox();
 }
 
 void Character::moveLeft() {
-  // TODO: Handle colission
   _origin.updateX(-1);
+  refreshBoundingBox();
 }
 
 bool Character::punch() {
@@ -163,6 +169,7 @@ bool Character::punch() {
       }
   }
   _punchingTimer = millis();
+  refreshBoundingBox();
   return true;
 }
 
@@ -192,10 +199,10 @@ void Character::crouch() {
   // }
 
   // _origin.updateY(-1);
+  // refreshBoundingBox();
 }
 
 bool Character::uncrouch() {
-  // Serial.println(_state);
   // switch (_state) {
   //   case State::BLOCKING:
   //   case State::IDLE:
@@ -221,6 +228,7 @@ bool Character::uncrouch() {
   //     }
   // }
   // _origin.updateY(1);
+  // refreshBoundingBox();
   return false;
 }
 
@@ -232,6 +240,7 @@ bool Character::runAnimations() {
       {
         if (now - _punchingTimer > PUNCH_ANIMATION_TIME) {
           _state = State::IDLE;
+          refreshBoundingBox();
           return true;
         }
       }
@@ -239,6 +248,7 @@ bool Character::runAnimations() {
       {
         if (now - _punchingTimer > PUNCH_ANIMATION_TIME) {
           _state = State::CROUCHED;
+          refreshBoundingBox();
           return true;
         }
       }
@@ -250,7 +260,6 @@ bool Character::runAnimations() {
 }
 
 bool Character::block() {
-  Serial.println(_state);
   switch (_state) {
     case State::BLOCKING:
     case State::CROUCHED_BLOCKING:
@@ -274,6 +283,8 @@ bool Character::block() {
         return false;
       }
   }
+
+  refreshBoundingBox();
 }
 
 bool Character::stopBlocking() {
@@ -293,8 +304,34 @@ bool Character::stopBlocking() {
         return false;
       }
   }
+
+  refreshBoundingBox();
 }
 
 bool Character::isBlocking() {
   return _state == State::BLOCKING || _state == State::CROUCHED_BLOCKING;
+}
+
+bool Character::canGoLeft() const {
+  return _canGoLeft;
+}
+
+bool Character::canGoRight() const {
+  return _canGoRight;
+}
+
+void Character::setCanGoLeft(bool canGoLeft) {
+  _canGoLeft = canGoLeft;
+}
+
+void Character::setCanGoRight(bool canGoRight) {
+  _canGoRight = canGoRight;
+}
+
+Collider Character::getCollider() const {
+  return _collider;
+}
+
+void Character::refreshBoundingBox() {
+  _collider.updateBoundingBox(getBoundingBox());
 }

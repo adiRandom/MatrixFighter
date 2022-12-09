@@ -55,9 +55,6 @@ void GameManager::handleInput() {
   if (_isPlayingGame) {
     bool hasMoved = handlePlayerJoyInput(_player1, player1Direction);
     bool hasDoneAction = handlePlayerBtnInput(_player1, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
-
-    // Serial.println(hasDoneAction);
-
     _changed = hasMoved || hasDoneAction;
   } else {
     handleMenuJoyInput(player1Direction);
@@ -82,6 +79,10 @@ void GameManager::getLCDState(char const introMessage[]) {
 
 
 bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
+  if (!canPlayerMove(player, direction)) {
+    return;
+  }
+
   if (direction.isRight()) {
     player.moveRight();
   } else if (direction.isLeft()) {
@@ -94,11 +95,12 @@ bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
     return player.uncrouch();
   }
 
+  updateMovementRestrictions(player, direction);
+
   return true;
 }
 
 bool GameManager::handlePlayerBtnInput(Character& player, bool isPrimaryPressed, bool isSecondaryPressed) {
-
   if (isPrimaryPressed) {
     return player.punch();
   } else if (isSecondaryPressed) {
@@ -110,4 +112,20 @@ bool GameManager::handlePlayerBtnInput(Character& player, bool isPrimaryPressed,
 
 void GameManager::handleMenuJoyInput(Direction direction) {
   _lcdController.moveSelector(direction);
+}
+
+bool GameManager::canPlayerMove(Character& player, Direction direction) {
+  return !((direction.isLeft() && !player.canGoLeft()) || (direction.isRight() && !player.canGoRight()));
+}
+
+void GameManager::updateMovementRestrictions(Character& player, Direction lastDirection) {
+  if (!player.getCollider().isColliding(_screenWalls)) {
+    player.setCanGoLeft(true);
+    player.setCanGoRight(true);
+  } else if (lastDirection.isLeft()) {
+    player.setCanGoLeft(false);
+  } else if (lastDirection.isRight()) {
+    Serial.println("Quack");
+    player.setCanGoRight(false);
+  }
 }

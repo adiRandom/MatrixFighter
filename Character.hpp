@@ -19,6 +19,8 @@ public:
 private:
   Point _origin;
   Collider _collider;
+  bool _canGoLeft;
+  bool _canGoRight;
 
   enum State {
     IDLE,
@@ -35,6 +37,7 @@ private:
   uint32_t _punchingTimer = millis();
 
   BoundingBox getBoundingBox();
+  void refreshBoundingBox();
 
 public:
   Character();
@@ -61,6 +64,13 @@ public:
    * Returns the number of pixels put in the buffer
    */
   uint8_t getPixels(Pixel buffer[]) const;
+
+
+  bool canGoLeft() const;
+  bool canGoRight() const;
+
+  void setCanGoLeft(bool canGoLeft);
+  void setCanGoRight(bool canGoRight);
 };
 
 #endif
