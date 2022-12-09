@@ -4,12 +4,7 @@
 #include "LedControl.h"
 #include <stdint.h>
 #include "Utils.h"
-#include "List.cpp"
-
-uint8_t const DISPLAY_SIZE = 8;
-uint8_t const DISPLAY_WIDTH = 8;
-uint8_t const DISPLAY_HEIGHT = 8;
-uint8_t const DISPLAY_COUNT = 1;
+#include "DisplayConstants.h"
 
 class DisplayController {
 private:
@@ -46,7 +41,6 @@ public:
   void draw();
   void setPixel(Pixel pixel);
   void setPixels(Pixel pixels[], uint32_t length);
-  void setPixels(List<Pixel> pixels);
   void commitNextFrame();
   void initStateAndNextFrame(DisplayController* initValue);
 };

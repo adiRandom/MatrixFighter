@@ -1,6 +1,4 @@
 #include "GameManager.hpp"
-#include "List.cpp"
-#include "Utils.h"
 #include "Direction.hpp"
 #include "MemoryFree.h"
 
@@ -40,9 +38,9 @@ void GameManager::getNextFrame() {
   if (!_changed && !player1AnimationRes) {
     return;
   }
-  List<Pixel> player1Pixels = _player1.getPixels(DISPLAY_HEIGHT);
+  uint8_t bufferLength = _player1.getPixels(_player1CharacterBuffer);
 
-  _displayController.setPixels(player1Pixels);
+  _displayController.setPixels(_player1CharacterBuffer, bufferLength);
   _displayController.commitNextFrame();
 
   _changed = false;
@@ -50,7 +48,6 @@ void GameManager::getNextFrame() {
 
 void GameManager::handleInput() {
   Direction player1Direction = _inputController.getJoyDirection(true);
-
   bool isPlayer1PrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
 

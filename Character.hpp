@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 #include "Utils.h"
-#include "List.cpp"
 #include "Collider.hpp"
 #include "Arduino.h"
 
 uint32_t const PUNCH_ANIMATION_TIME = 500;
+uint8_t const CHARACTER_MODEL_BUFFER_SIZE = 6;
 
 class Character {
 public:
@@ -57,7 +57,7 @@ public:
    */
   bool runAnimations();
   Collider getCollider() const;
-  List<Pixel> getPixels(int32_t displayHeight) const;
+  uint8_t getPixels(Pixel buffer[]) const;
 };
 
 #endif

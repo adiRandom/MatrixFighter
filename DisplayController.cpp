@@ -51,14 +51,6 @@ void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
   }
 }
 
-void DisplayController::setPixels(List<Pixel> pixels) {
-  List<Pixel>::Node* node = pixels.getHead();
-  while (node != nullptr) {
-    setPixel(node->value);
-    node = node->next;
-  }
-}
-
 void DisplayController::draw() {
   for (uint8_t i = 0; i < DISPLAY_HEIGHT; i++) {
     for (uint8_t j = 0; j < DISPLAY_WIDTH; j++) {

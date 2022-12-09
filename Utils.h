@@ -20,7 +20,7 @@ public:
   int16_t getY() const;
   void updateX(int16_t delta);
   void updateY(int16_t delta);
-  Pixel toPixel(int32_t displayHeight) const;
+  Pixel toPixel() const;
 };
 
 struct BoundingBox {

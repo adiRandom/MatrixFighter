@@ -5,6 +5,7 @@
 #include "Character.hpp"
 #include "InputController.hpp"
 #include "LCDController.hpp"
+#include "Utils.h"
 
 class GameManager {
 private:
@@ -14,6 +15,7 @@ private:
   LCDController _lcdController;
   bool _changed = true;
   bool _isPlayingGame = false;
+  Pixel _player1CharacterBuffer[CHARACTER_MODEL_BUFFER_SIZE];
 
   void handlePlayer1JoyInput(Direction direction);
   void handleMenuJoyInput(Direction direciton);

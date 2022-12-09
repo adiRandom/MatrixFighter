@@ -1,5 +1,5 @@
 #include "Character.hpp"
-#include "MemoryFree.h"
+#include "DisplayConstants.h"
 
 
 Character::Character()
@@ -16,46 +16,46 @@ Character::Character(Point initialPosition, Orientation orientation = Orientatio
     _state{ State::IDLE } {
 }
 
-List<Pixel> Character::getPixels(int32_t displayHeight) const {
-  List<Pixel> result;
+uint8_t Character::getPixels(Pixel buffer[]) const {
+  uint8_t index = 0;
   switch (_state) {
     case State::IDLE:
       {
         if (_orientation == Orientation::RIGHT) {
-          result.push(Point{ _origin.getX(), _origin.getY() - 1 }.toPixel(displayHeight));
-          result.push(_origin.toPixel(displayHeight));
-          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
+          buffer[index++] = _origin.toPixel();
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
         }
         break;
       }
     case State::PUNCHIG:
       {
         if (_orientation == Orientation::RIGHT) {
-          result.push(Point{ _origin.getX(), _origin.getY() - 1 }.toPixel(displayHeight));
-          result.push(_origin.toPixel(displayHeight));
-          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 2, _origin.getY() }.toPixel(displayHeight));
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
+          buffer[index++] = _origin.toPixel();
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 2, _origin.getY() }.toPixel();
         }
         break;
       }
     case State::CROUCHED:
       {
         if (_orientation == Orientation::RIGHT) {
-          result.push(_origin.toPixel(displayHeight));
-          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
+          buffer[index++] = _origin.toPixel();
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
         }
         break;
       }
     case State::CROUCHED_PUNCHING:
       {
         if (_orientation == Orientation::RIGHT) {
-          result.push(_origin.toPixel(displayHeight));
-          result.push(Point{ _origin.getX(), _origin.getY() + 1 }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 1, _origin.getY() }.toPixel(displayHeight));
-          result.push(Point{ _origin.getX() + 2, _origin.getY() }.toPixel(displayHeight));
+          buffer[index++] = _origin.toPixel();
+          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
+          buffer[index++] = Point{ _origin.getX() + 2, _origin.getY() }.toPixel();
         }
         break;
       }
@@ -64,7 +64,6 @@ List<Pixel> Character::getPixels(int32_t displayHeight) const {
         break;
       }
   }
-  return result;
 }
 
 BoundingBox Character::getBoundingBox() {
@@ -153,60 +152,60 @@ bool Character::punch() {
 }
 
 void Character::crouch() {
-  switch (_state) {
-    case State::CROUCHED:
-    case State::CROUCHED_BLOCKING:
-    case State::CROUCHED_PUNCHING:
-      {
-        return;
-      }
-    case State::PUNCHIG:
-    case State::IDLE:
-      {
-        _state = State::CROUCHED;
-        break;
-      }
-    case State::BLOCKING:
-      {
-        _state = State::CROUCHED_BLOCKING;
-        break;
-      }
-    default:
-      {
-        return;
-      }
-  }
+  // switch (_state) {
+  //   case State::CROUCHED:
+  //   case State::CROUCHED_BLOCKING:
+  //   case State::CROUCHED_PUNCHING:
+  //     {
+  //       return;
+  //     }
+  //   case State::PUNCHIG:
+  //   case State::IDLE:
+  //     {
+  //       _state = State::CROUCHED;
+  //       break;
+  //     }
+  //   case State::BLOCKING:
+  //     {
+  //       _state = State::CROUCHED_BLOCKING;
+  //       break;
+  //     }
+  //   default:
+  //     {
+  //       return;
+  //     }
+  // }
 
-  _origin.updateY(-1);
+  // _origin.updateY(-1);
 }
 
 void Character::rest() {
-  Serial.println(_state);
-  switch (_state) {
-    case State::BLOCKING:
-    case State::IDLE:
-      {
+  // Serial.println(_state);
+  // switch (_state) {
+  //   case State::BLOCKING:
+  //   case State::IDLE:
+  //     {
 
-        return;
-      }
-    case State::PUNCHIG:
-    case State::CROUCHED:
-    case State::CROUCHED_PUNCHING:
-      {
-        _state = State::IDLE;
-        break;
-      }
-    case State::CROUCHED_BLOCKING:
-      {
-        _state = State::BLOCKING;
-        break;
-      }
-    default:
-      {
-        return;
-      }
-  }
-  _origin.updateY(1);
+  //       return;
+  //     }
+  //   case State::PUNCHIG:
+  //   case State::CROUCHED:
+  //   case State::CROUCHED_PUNCHING:
+  //     {
+  //       _state = State::IDLE;
+  //       break;
+  //     }
+  //   case State::CROUCHED_BLOCKING:
+  //     {
+  //       _state = State::BLOCKING;
+  //       break;
+  //     }
+  //   default:
+  //     {
+  //       return;
+  //     }
+  // }
+  // _origin.updateY(1);
 }
 
 bool Character::runAnimations() {
