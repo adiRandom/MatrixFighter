@@ -17,8 +17,9 @@ private:
   bool _isPlayingGame = false;
   Pixel _player1CharacterBuffer[CHARACTER_MODEL_BUFFER_SIZE];
 
-  void handlePlayer1JoyInput(Direction direction);
+  bool handlePlayerJoyInput(Character& player, Direction direction);
   void handleMenuJoyInput(Direction direciton);
+  bool handlePlayerBtnInput(Character& player, bool isPrimaryPressed, bool isSecondaryPressed);
 
 public:
   GameManager();

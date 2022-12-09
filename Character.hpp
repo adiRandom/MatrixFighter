@@ -47,9 +47,9 @@ public:
    * Returns whether the action succeded or not
    */
   bool punch();
-  void block();
-  // Uncrouch
-  void rest();
+  bool block();
+  bool stopBlocking();
+  bool uncrouch();
   bool isBlocking();
   bool isPunching();
   /**
@@ -57,6 +57,9 @@ public:
    */
   bool runAnimations();
   Collider getCollider() const;
+  /**
+   * Returns the number of pixels put in the buffer
+   */
   uint8_t getPixels(Pixel buffer[]) const;
 };
 

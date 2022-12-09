@@ -18,45 +18,56 @@ Character::Character(Point initialPosition, Orientation orientation = Orientatio
 
 uint8_t Character::getPixels(Pixel buffer[]) const {
   uint8_t index = 0;
+  uint8_t armOffset = _orientation == Orientation::RIGHT ? 1 : -1;
   switch (_state) {
     case State::IDLE:
       {
-        if (_orientation == Orientation::RIGHT) {
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
-          buffer[index++] = _origin.toPixel();
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
-        }
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
         break;
       }
     case State::PUNCHIG:
       {
-        if (_orientation == Orientation::RIGHT) {
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
-          buffer[index++] = _origin.toPixel();
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 2, _origin.getY() }.toPixel();
-        }
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() }.toPixel();
         break;
       }
     case State::CROUCHED:
       {
-        if (_orientation == Orientation::RIGHT) {
-          buffer[index++] = _origin.toPixel();
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
-        }
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
         break;
       }
     case State::CROUCHED_PUNCHING:
       {
-        if (_orientation == Orientation::RIGHT) {
-          buffer[index++] = _origin.toPixel();
-          buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 1, _origin.getY() }.toPixel();
-          buffer[index++] = Point{ _origin.getX() + 2, _origin.getY() }.toPixel();
-        }
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() }.toPixel();
+        break;
+      }
+    case State::BLOCKING:
+      {
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        break;
+      }
+
+    case State::CROUCHED_BLOCKING:
+      {
+        buffer[index++] = _origin.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
         break;
       }
     default:
@@ -64,11 +75,14 @@ uint8_t Character::getPixels(Pixel buffer[]) const {
         break;
       }
   }
+
+  return index;
 }
 
 BoundingBox Character::getBoundingBox() {
   switch (_state) {
     case Character::State::IDLE:
+    case State::BLOCKING:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -83,6 +97,7 @@ BoundingBox Character::getBoundingBox() {
         }
       }
     case State::CROUCHED:
+    case State::CROUCHED_BLOCKING:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -179,7 +194,7 @@ void Character::crouch() {
   // _origin.updateY(-1);
 }
 
-void Character::rest() {
+bool Character::uncrouch() {
   // Serial.println(_state);
   // switch (_state) {
   //   case State::BLOCKING:
@@ -206,6 +221,7 @@ void Character::rest() {
   //     }
   // }
   // _origin.updateY(1);
+  return false;
 }
 
 bool Character::runAnimations() {
@@ -231,4 +247,54 @@ bool Character::runAnimations() {
         return false;
       }
   }
+}
+
+bool Character::block() {
+  Serial.println(_state);
+  switch (_state) {
+    case State::BLOCKING:
+    case State::CROUCHED_BLOCKING:
+      {
+        return false;
+      }
+    case State::CROUCHED:
+    case State::CROUCHED_PUNCHING:
+      {
+        _state = State::CROUCHED_BLOCKING;
+        return true;
+      }
+    case State::IDLE:
+    case State::PUNCHIG:
+      {
+        _state = State::BLOCKING;
+        return true;
+      }
+    default:
+      {
+        return false;
+      }
+  }
+}
+
+bool Character::stopBlocking() {
+  switch (_state) {
+    case State::BLOCKING:
+      {
+        _state = State::IDLE;
+        return true;
+      }
+    case State::CROUCHED_BLOCKING:
+      {
+        _state = State::CROUCHED;
+        return true;
+      }
+    default:
+      {
+        return false;
+      }
+  }
+}
+
+bool Character::isBlocking() {
+  return _state == State::BLOCKING || _state == State::CROUCHED_BLOCKING;
 }

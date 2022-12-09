@@ -474,6 +474,7 @@ void LCDController::showAbout(uint16_t topEntryIndex) {
 }
 
 void LCDController::showGame() {
+
   _lcd.clear();
   _lastState = State::GAME;
 }
