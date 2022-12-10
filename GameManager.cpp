@@ -67,6 +67,8 @@ void GameManager::handleInput() {
   bool isPlayer2PrimaryBtnPressed = player2InputBundle.isPrimaryBtnPressed;
   bool isPlayer2SecondaryBtnPressed = player2InputBundle.isSecondaryBtnPressed;
 
+  Serial.println(player2InputBundle.direction.getDirection());
+
   if (_isPlayingGame) {
     bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
     bool _didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);

@@ -60,6 +60,7 @@ void SlaveInputController::sendBundle() {
   uint8_t binaryForm = encode(InputBundle{
     direction, isPrimaryBtnPressed, isSecondaryBtnPressed });
 
+  Serial.println(binaryForm);
   Serial.write(binaryForm);
 }
 
@@ -67,6 +68,7 @@ InputBundle SlaveInputController::getBundle() {
   if (Serial.available() > 0) {
     uint8_t input = Serial.read();
     Serial.println(input);
+
     return decode(input);
   }
 
