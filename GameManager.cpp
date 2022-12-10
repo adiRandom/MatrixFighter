@@ -67,8 +67,6 @@ void GameManager::handleInput() {
   bool isPlayer2PrimaryBtnPressed = player2InputBundle.isPrimaryBtnPressed;
   bool isPlayer2SecondaryBtnPressed = player2InputBundle.isSecondaryBtnPressed;
 
-  Serial.println(player2InputBundle.direction.getDirection());
-
   if (_isPlayingGame) {
     bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
     bool _didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);
@@ -102,14 +100,17 @@ bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
     return player.uncrouch();
   }
 
-  updateMovementRestrictions(player, direction);
-
   return true;
 }
 
 bool GameManager::handlePlayerBtnInput(Character& player, bool isPrimaryPressed, bool isSecondaryPressed) {
   if (isPrimaryPressed) {
-    return player.punch();
+    bool punchRes = player.punch();
+    Character& otherPlayer = &player == &_player1 ? _player2 : _player1;
+    if (player.isHit(otherPlayer)) {
+      otherPlayer.gotHit();
+    }
+    return punchRes;
   } else if (isSecondaryPressed) {
     return player.block();
   } else if (player.isBlocking()) {
@@ -125,14 +126,14 @@ bool GameManager::canPlayerMove(Character& player, Direction direction) {
   return !((direction.isLeft() && !player.canGoLeft()) || (direction.isRight() && !player.canGoRight()));
 }
 
-void GameManager::updateMovementRestrictions(Character& player, Direction lastDirection) {
-  if (!player.getCollider().isColliding(_screenWalls)) {
+void GameManager::updateMovementRestrictions(Character& player) {
+  if (player.getCollider().isLeftEdgeColliding(_screenWalls)) {
+    player.setCanGoLeft(false);
+  } else if (player.getCollider().isRightEdgeColliding(_screenWalls)) {
+    player.setCanGoRight(false);
+  } else {
     player.setCanGoLeft(true);
     player.setCanGoRight(true);
-  } else if (lastDirection.isLeft()) {
-    player.setCanGoLeft(false);
-  } else if (lastDirection.isRight()) {
-    player.setCanGoRight(false);
   }
 }
 
@@ -154,6 +155,8 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
 
   bool hasMoved = handlePlayerJoyInput(player, direciton);
   bool hasDoneAction = handlePlayerBtnInput(player, isPrimaryPressed, isSecondaryPressed);
+
+  updateMovementRestrictions(player);
 
   return hasMoved || hasDoneAction;
 }

@@ -39,18 +39,18 @@ InputController player1InputController(
   false,
   true
 );
-Character player1(Point{ 0, 1 });
+Character player1;
 
 InputController player2InputController(
   JOYSTICK_X_PIN,
   JOYSTICK_Y_PIN,
   PRIMARY_BTN_PIN,
   SECONDARY_BTN_PIN,
-  true,
   false,
+  true,
   true
 );
-Character player2(Point{ DISPLAY_WIDTH - 1, 1 }, Character::Orientation::LEFT);
+Character player2;
 
 SlaveInputController player2SlaveInputController(player2InputController);
 
@@ -78,6 +78,9 @@ void setup() {
     DISPLAY_LOAD_PIN,
     DISPLAY_CLK_PIN
   );
+
+  player1 = Character(Point{ 0, 1 }, Character::Orientation::RIGHT);
+  player2 = Character(Point{ DISPLAY_WIDTH - 1, 1 }, Character::Orientation::LEFT);
 
   gameManager = GameManager(displayController, player1, player1InputController, player2, player2SlaveInputController, lcdController);
 

@@ -6,6 +6,7 @@
 #include "MenuEntry.hpp"
 #include "Direction.hpp"
 
+
 uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
 uint8_t const INTRO_MESSAGE_SIZE = 16;

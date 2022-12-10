@@ -4,20 +4,21 @@
 
 Character::Character()
   : _origin{ Point{ 0, 0 } },
-    _collider{ Collider(getBoundingBox()) },
     _orientation{ Orientation::RIGHT },
+    _collider{ Collider(getBoundingBox()) },
     _state{ State::IDLE },
     _canGoLeft{ false },
     _canGoRight{ true } {
 }
 
-Character::Character(Point initialPosition, Orientation orientation = Orientation::RIGHT)
+Character::Character(Point initialPosition, Orientation orientation)
   : _origin{ initialPosition },
-    _collider{ Collider(getBoundingBox()) },
     _orientation{ orientation },
     _state{ State::IDLE },
     _canGoLeft{ orientation == Orientation::LEFT },
     _canGoRight{ orientation == Orientation::RIGHT } {
+
+  _collider = Collider{ getBoundingBox() };
 }
 
 uint8_t Character::getPixels(Pixel buffer[]) const {
@@ -87,7 +88,7 @@ BoundingBox Character::getBoundingBox() {
   switch (_state) {
     case Character::State::IDLE:
     case State::BLOCKING:
-    case State::PUNCHIG:
+      // case State::PUNCHIG:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -103,7 +104,7 @@ BoundingBox Character::getBoundingBox() {
       }
     case State::CROUCHED:
     case State::CROUCHED_BLOCKING:
-    case State::CROUCHED_PUNCHING:
+      // case State::CROUCHED_PUNCHING:
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
@@ -117,24 +118,34 @@ BoundingBox Character::getBoundingBox() {
           };
         }
       }
-    // case State::PUNCHIG:
-    //   {
-    //     if (_orientation == Orientation::RIGHT) {
-    //       return BoundingBox{
-    //         Point{ _origin.getX(), _origin.getY() + 1 },
-    //         Point{ _origin.getX() + 2, _origin.getY() - 1 },
-    //       };
-    //     }
-    //   }
-    // case State::CROUCHED_PUNCHING:
-    //   {
-    //     if (_orientation == Orientation::RIGHT) {
-    //       return BoundingBox{
-    //         Point{ _origin.getX(), _origin.getY() + 1 },
-    //         Point{ _origin.getX() + 2, _origin.getY() },
-    //       };
-    //     }
-    //   }
+    case State::PUNCHIG:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 2, _origin.getY() - 1 },
+          };
+        } else {
+          return BoundingBox{
+            Point{ _origin.getX() - 2, _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() - 1 },
+          };
+        }
+      }
+    case State::CROUCHED_PUNCHING:
+      {
+        if (_orientation == Orientation::RIGHT) {
+          return BoundingBox{
+            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX() + 2, _origin.getY() },
+          };
+        } else {
+          return BoundingBox{
+            Point{ _origin.getX() - 2, _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() },
+          };
+        }
+      }
     default:
       {
         return BoundingBox{
@@ -245,6 +256,7 @@ bool Character::runAnimations() {
       {
         if (now - _punchingTimer > PUNCH_ANIMATION_TIME) {
           _state = State::IDLE;
+          _didPunchHit = false;
           refreshBoundingBox();
           return true;
         }
@@ -339,4 +351,36 @@ Collider Character::getCollider() const {
 
 void Character::refreshBoundingBox() {
   _collider.updateBoundingBox(getBoundingBox());
+}
+
+bool Character::isCrouching() {
+  return _state == State::CROUCHED || _state == State::CROUCHED_BLOCKING || _state == State::CROUCHED_PUNCHING;
+}
+
+uint16_t Character::getHP() {
+  return _hp;
+}
+
+void Character::gotHit() {
+  _hp--;
+  Serial.println(_hp);
+}
+bool Character::isHit(Character &other) {
+  if (other.isBlocking()) {
+    return false;
+  } else if (!isPunching() || _didPunchHit) {
+    return false;
+  } else if (!other.getCollider().isColliding(_collider)) {
+    return false;
+  } else if (other.isCrouching() != isCrouching()) {
+    return false;
+  }
+
+  _didPunchHit = true;
+
+  return true;
+}
+
+bool Character::isPunching() {
+  return _state == State::PUNCHIG || _state == State::CROUCHED_PUNCHING;
 }

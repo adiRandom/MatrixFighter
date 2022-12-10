@@ -18,9 +18,6 @@ private:
   Character _player1;
   InputController _player1InputController;
 
-  Character _player2;
-  SlaveInputController _player2InputController;
-
   bool _changed = true;
   bool _isPlayingGame = false;
 
@@ -30,12 +27,15 @@ private:
     Point{ -1, -1 },
     Point{ DISPLAY_WIDTH, DISPLAY_HEIGHT } } };
 
+  Character _player2;
+  SlaveInputController _player2InputController;
+
   bool handlePlayerJoyInput(Character& player, Direction direction);
   void handleMenuJoyInput(Direction direciton);
   void handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed);
   bool handlePlayerBtnInput(Character& player, bool isPrimaryPressed, bool isSecondaryPressed);
   bool canPlayerMove(Character& player, Direction direction);
-  void updateMovementRestrictions(Character& player, Direction lastDirection);
+  void updateMovementRestrictions(Character& player);
 
   /**
    * Return if frame should be updated

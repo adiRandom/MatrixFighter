@@ -38,7 +38,7 @@ uint8_t SlaveInputController::encode(InputBundle inputBundle) {
 
 InputBundle SlaveInputController::decode(uint8_t binaryForm) {
   InputBundle result;
-  uint8_t binaryFormCopy;
+  uint8_t binaryFormCopy = binaryForm;
 
   result.isSecondaryBtnPressed = binaryFormCopy & 1;
   binaryFormCopy = binaryFormCopy >> 1;
@@ -46,7 +46,6 @@ InputBundle SlaveInputController::decode(uint8_t binaryForm) {
   result.isPrimaryBtnPressed = binaryFormCopy & 1;
   binaryFormCopy = binaryFormCopy >> 1;
 
-  binaryForm = binaryForm << 1;
   result.direction = Direction(binaryForm);
 
   return result;
@@ -60,14 +59,12 @@ void SlaveInputController::sendBundle() {
   uint8_t binaryForm = encode(InputBundle{
     direction, isPrimaryBtnPressed, isSecondaryBtnPressed });
 
-  Serial.println(binaryForm);
   Serial.write(binaryForm);
 }
 
 InputBundle SlaveInputController::getBundle() {
   if (Serial.available() > 0) {
     uint8_t input = Serial.read();
-    Serial.println(input);
 
     return decode(input);
   }
