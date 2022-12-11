@@ -47,7 +47,9 @@ void DisplayController::setPixel(Pixel pixel) {
 void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
   for (uint32_t i = 0; i < length; i++) {
     Pixel pixel = pixels[i];
-    _nextFrame[pixel.y][pixel.x] = pixel.value;
+    if (pixel.y < DISPLAY_HEIGHT && pixel.x < DISPLAY_WIDTH) {
+      _nextFrame[pixel.y][pixel.x] = pixel.value;
+    }
   }
 }
 
