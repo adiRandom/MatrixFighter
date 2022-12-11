@@ -1,6 +1,5 @@
 #include "SlaveInputController.hpp"
 #include "Direction.hpp"
-#include <Wire.h>
 
 SlaveInputController::SlaveInputController() {
 }
@@ -60,20 +59,15 @@ void SlaveInputController::sendBundle() {
   uint8_t binaryForm = encode(InputBundle{
     direction, isPrimaryBtnPressed, isSecondaryBtnPressed });
 
-  Serial.println("Before");
-  Serial.println(binaryForm);
-  Wire.beginTransmission(MAIN_ARDUINO_ADDRESS);
-  // Serial.println("After");
-
-  Wire.write(binaryForm);  // sends x
-  Wire.endTransmission();
-  delay(500);
+  Serial.write(binaryForm);
 }
 
 InputBundle SlaveInputController::getBundle() {
-  return _lastBundle;
-}
+  if (Serial.available() > 0) {
+    uint8_t input = Serial.read();
 
-void SlaveInputController::onByteReceived(uint8_t byte) {
-  _lastBundle = decode(byte);
+    return decode(input);
+  }
+
+  return InputBundle{ Direction(), false, false };
 }

@@ -6,7 +6,6 @@
 #include "LCDController.hpp"
 #include "DisplayConstants.h"
 #include "SlaveInputController.hpp"
-// #include <Wire.h>
 
 uint8_t const DISPLAY_DATA_PIN = 12;
 uint8_t const DISPLAY_CLK_PIN = 11;
@@ -86,23 +85,9 @@ void setup() {
   gameManager = GameManager(displayController, player1, player1InputController, player2, player2SlaveInputController, lcdController);
 
   isSlave = digitalRead(SLAVE_PIN) == HIGH;
-
-  // if (isSlave) {
-  //   Wire.begin();
-  // } else {
-  //   Wire.begin(MAIN_ARDUINO_ADDRESS);
-  //   Wire.onReceive(onI2CBytesReceived);
-  // }
 }
 
-// void onI2CBytesReceived(int bytes) {
-//   uint8_t input = Wire.read();
-//   Serial.println(input);
-//   player2SlaveInputController.onByteReceived(input);
-// }
-
 void loop() {
-  Serial.println(isSlave);
   if (isSlave) {
     player2SlaveInputController.sendBundle();
   } else {
