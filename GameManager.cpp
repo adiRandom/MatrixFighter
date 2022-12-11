@@ -139,6 +139,11 @@ void GameManager::updateMovementRestrictions(Character& player) {
     player.setCanGoLeft(true);
     player.setCanGoRight(true);
   }
+
+  if(_player1.getCollider().isColliding(_player2.getCollider())){
+    _player1.setCanGoRight(false);
+    _player2.setCanGoLeft(false);
+  }
 }
 
 void GameManager::handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed) {

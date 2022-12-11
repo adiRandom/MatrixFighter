@@ -221,12 +221,12 @@ void Character::crouch() {
 bool Character::uncrouch() {
   Serial.println(_state);
   switch (_state) {
+    case State::PUNCHIG:
     case State::BLOCKING:
     case State::IDLE:
       {
         return false;
       }
-    case State::PUNCHIG:
     case State::CROUCHED:
     case State::CROUCHED_PUNCHING:
       {
@@ -379,7 +379,7 @@ bool Character::isHit(Character &other) {
     if (other.isCrouching()) {
       // No point to hit the other player if he's bloking and crouching
       return false;
-    } else if (!isChrouching()) {
+    } else if (!isCrouching()) {
       // Punching right into the shield
       return false;
     }
