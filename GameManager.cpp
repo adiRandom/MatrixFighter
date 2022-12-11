@@ -140,7 +140,7 @@ void GameManager::updateMovementRestrictions(Character& player) {
     player.setCanGoRight(true);
   }
 
-  if(_player1.getCollider().isColliding(_player2.getCollider())){
+  if (_player1.getCollider().isColliding(_player2.getCollider())) {
     _player1.setCanGoRight(false);
     _player2.setCanGoLeft(false);
   }

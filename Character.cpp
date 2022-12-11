@@ -184,6 +184,7 @@ bool Character::punch() {
         break;
       }
   }
+
   _punchingTimer = millis();
   refreshBoundingBox();
   return true;
@@ -219,7 +220,6 @@ void Character::crouch() {
 }
 
 bool Character::uncrouch() {
-  Serial.println(_state);
   switch (_state) {
     case State::PUNCHIG:
     case State::BLOCKING:
