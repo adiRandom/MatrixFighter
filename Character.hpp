@@ -8,7 +8,7 @@
 
 uint32_t const PUNCH_ANIMATION_TIME = 500;
 uint8_t const CHARACTER_MODEL_BUFFER_SIZE = 6;
-uint16_t const MAX_HP = 100;
+uint16_t const DEFAULT_MAX_HP = 10;
 uint32_t const DEFAULT_MOVE_THROTTLE_TIME = 100;
 
 class Character {
@@ -23,9 +23,9 @@ private:
   Collider _collider;
   bool _canGoLeft = false;
   bool _canGoRight = false;
-  uint16_t _hp = MAX_HP;
+  uint16_t _hp = DEFAULT_MAX_HP;
 
-  // When the user punches and hits, set this to true 
+  // When the user punches and hits, set this to true
   // so the punch won't deal more than 1 dmg while the animation is on
   bool _didPunchHit = false;
 
@@ -85,6 +85,10 @@ public:
   bool isHit(Character &other);
   bool canMove() const;
   void resetMoveTimer();
+  bool isDead() const;
+
+  // Is player 1 or 2
+  uint8_t getPlayerIndex() const;
 };
 
 #endif

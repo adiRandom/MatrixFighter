@@ -5,10 +5,33 @@
 #include "Utils.h"
 #include "MenuEntry.hpp"
 #include "Direction.hpp"
-
+#include <Arduino.h>
 
 uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
+uint16_t const DEFAULT_ROUND_TIME = 100;
+
+
+uint8_t const PLAYER_1_HP_POS = 0;
+uint8_t const PLAYER_1_HEART_POS = 3;
+uint8_t const PLAYER_1_BLOCKS_POS = 4;
+uint8_t const PLAYER_1_SHIELD_POS = 6;
+uint8_t const PLAYER_1_NAME_POS = 0;
+uint8_t const PLAYER_2_HP_POS = 9;
+uint8_t const PLAYER_2_HEART_POS = 12;
+uint8_t const PLAYER_2_BLOCKS_POS = 13;
+uint8_t const PLAYER_2_SHIELD_POS = 15;
+uint8_t const PLAYER_2_NAME_POS = 13;
+uint8_t const TIME_POS = 6;
+uint8_t const INFO_LINE = 0;
+uint8_t const STATS_LINE = 1;
+
+uint8_t const GAME_OVER_MSG_LENGTH = 8;
+uint8_t const MAX_NAME_LEN = 3;
+uint32_t const GAME_OVER_TIME = 3 * 1000;
+uint8_t const GAME_OVER_MSG_POS_X = 3;
+uint8_t const GAME_OVER_MSG_POS_Y = 3;
+
 uint8_t const INTRO_MESSAGE_SIZE = 16;
 uint8_t const MAIN_MENU_SIZE = 4;
 uint8_t const HELP_MENU_SIZE = 4;
@@ -28,6 +51,9 @@ uint8_t const HELP_MOVE_LINE_ID = 0;
 uint8_t const HELP_JOYSTICK_LINE_ID = 1;
 uint8_t const HELP_ATK_LINE_ID = 2;
 uint8_t const HELP_DEF_LINE_ID = 3;
+
+uint8_t const HEART_SYMBOL = 0;
+uint8_t const SHIELD_SYMBOL = 1;
 
 
 class LCDController {
@@ -77,10 +103,16 @@ private:
     GAME,
     ABOUT,
     HELP,
-    HIGHSCORE
+    HIGHSCORE,
+    GAME_OVER
   };
+
   State _state = State::INTRO;
   State _lastState = State::INTRO;
+  uint16_t _roundTimer = DEFAULT_ROUND_TIME;
+  int32_t _lastRoundTimerTick = 0;
+  bool _isGameUIInit = false;
+  uint32_t _gameOverTimer = 0;
 
   void displaySelector();
   char const* getMainMenuEntryName(uint16_t id) const;
@@ -97,10 +129,12 @@ private:
   void moveAboutMenuSelector(Direction direction);
   void moveHelpMenuSelector(Direction direction);
   void selectInMainMenu();
+  void showGameOver(char const message[GAME_OVER_MSG_LENGTH]);
+  void runRoundTimer();
 
-    public :
+public:
 
-    LCDController();
+  LCDController();
   LCDController(
     uint8_t rsPin,
     uint8_t enablePin,
@@ -122,6 +156,17 @@ private:
   void back();
   void startGame();
   bool isPreGame() const;
+
+  void setPlayer1Hp(uint16_t hp);
+  void setPlayer2Hp(uint16_t hp);
+
+  void setPlayer1Blocks(uint16_t blocks);
+  void setPlayer2Blocks(uint16_t blocks);
+
+  void setGameUIInit();
+  bool isGameUIInit();
+  void gameOver(char const name[MAX_NAME_LEN]);
 };
+
 
 #endif

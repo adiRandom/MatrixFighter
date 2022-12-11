@@ -42,8 +42,11 @@ private:
    */
   bool handlePlayerInput(Character& player, Direction direciton, bool isPrimaryPressed, bool isSecondaryPressed);
 
-public:
-  GameManager();
+  void initGameUi();
+  void updatePlayerHP();
+  void hitPlayer(Character& player, Character& otherPlayer);
+
+    public : GameManager();
   GameManager(
     DisplayController& displayController,
     Character& player1,

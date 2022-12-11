@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 #include "MemoryFree.h"
+#include "string.h"
 
 LCDController::LCDController()
   : _rsPin{ 0 },
@@ -84,6 +85,10 @@ LCDController& LCDController::operator=(LCDController const& other) {
 void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SIZE]) {
   displaySelector();
 
+  if (_state == State::GAME) {
+    runRoundTimer();
+  }
+
   if (_state == _lastState && _state != State::INTRO) {
     return;
   }
@@ -91,6 +96,12 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
     case State::INTRO:
       {
         showIntro(introMessage);
+        break;
+      }
+    case State::GAME_OVER:
+      {
+        // We already set the message when ended the game
+        showGameOver("");
         break;
       }
     case State::MENU:
@@ -224,6 +235,31 @@ void LCDController::initDisplay() {
   pinMode(_contrastPin, OUTPUT);
   _lcd.begin(_width, _height);
   analogWrite(_contrastPin, DEFAULT_CONTRAST);
+
+  uint8_t heart[8] = {
+    0b00000,
+    0b01010,
+    0b11111,
+    0b11111,
+    0b11111,
+    0b01110,
+    0b00100,
+    0b00000
+  };
+
+  uint8_t shield[8] = {
+    0b00000,
+    0b00000,
+    0b11111,
+    0b10001,
+    0b10101,
+    0b10001,
+    0b01010,
+    0b00100,
+  };
+
+  _lcd.createChar(HEART_SYMBOL, heart);
+  _lcd.createChar(SHIELD_SYMBOL, shield);
 }
 
 void LCDController::moveSelector(Direction direction) {
@@ -259,6 +295,19 @@ void LCDController::showIntro(char const introMessage[INTRO_MESSAGE_SIZE]) {
     _introTimer = millis();
   } else {
     if (millis() - _introTimer > INTRO_SHOW_TIME) {
+      _state = State::MENU;
+    }
+  }
+}
+
+void LCDController::showGameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
+  _lcd.setCursor(GAME_OVER_MSG_POS_X, GAME_OVER_MSG_POS_Y);
+  if (_gameOverTimer == 0) {
+    _lcd.clear();
+    _lcd.print(msg);
+    _gameOverTimer = millis();
+  } else {
+    if (millis() - _gameOverTimer > GAME_OVER_TIME) {
       _state = State::MENU;
     }
   }
@@ -474,8 +523,37 @@ void LCDController::showAbout(uint16_t topEntryIndex) {
 }
 
 void LCDController::showGame() {
-
   _lcd.clear();
+
+  // Player 1
+
+  _lcd.setCursor(PLAYER_1_HP_POS, INFO_LINE);
+  _lcd.print("P1");
+
+  _lcd.setCursor(PLAYER_1_HEART_POS, STATS_LINE);
+  _lcd.write((byte)HEART_SYMBOL);
+
+  _lcd.setCursor(PLAYER_1_SHIELD_POS, STATS_LINE);
+  _lcd.write((byte)SHIELD_SYMBOL);
+
+
+  // Player 2
+  _lcd.setCursor(PLAYER_2_NAME_POS, INFO_LINE);
+  _lcd.print("P2");
+
+  _lcd.setCursor(PLAYER_2_HEART_POS, STATS_LINE);
+  _lcd.write((byte)HEART_SYMBOL);
+
+  _lcd.setCursor(PLAYER_2_SHIELD_POS, STATS_LINE);
+  _lcd.write((byte)SHIELD_SYMBOL);
+
+
+  // Time
+  _lcd.setCursor(TIME_POS, INFO_LINE);
+  _lcd.print(DEFAULT_ROUND_TIME);
+
+
+  _lastRoundTimerTick = millis();
   _lastState = State::GAME;
 }
 
@@ -516,4 +594,82 @@ void LCDController::showHelp(uint8_t topEntryIndex) {
   }
   _lastState = State::HELP;
   _selectedEntry = &_helpMenuEntries[HELP_MOVE_LINE_ID];
+}
+
+void LCDController::setPlayer1Hp(uint16_t hp) {
+  _lcd.setCursor(PLAYER_1_HP_POS, STATS_LINE);
+  _lcd.print("   ");
+  _lcd.setCursor(PLAYER_1_HP_POS, STATS_LINE);
+  _lcd.print(hp);
+}
+
+void LCDController::setPlayer2Hp(uint16_t hp) {
+  _lcd.setCursor(PLAYER_2_HP_POS, STATS_LINE);
+  _lcd.print("   ");
+  _lcd.setCursor(PLAYER_2_HP_POS, STATS_LINE);
+  _lcd.print(hp);
+}
+
+
+void LCDController::setPlayer1Blocks(uint16_t blocks) {
+  _lcd.setCursor(PLAYER_1_BLOCKS_POS, STATS_LINE);
+  _lcd.print("   ");
+  _lcd.setCursor(PLAYER_1_BLOCKS_POS, STATS_LINE);
+  _lcd.print(blocks);
+}
+
+void LCDController::setPlayer2Blocks(uint16_t blocks) {
+  _lcd.setCursor(PLAYER_2_BLOCKS_POS, STATS_LINE);
+  _lcd.print("   ");
+  _lcd.setCursor(PLAYER_2_BLOCKS_POS, STATS_LINE);
+  _lcd.print(blocks);
+}
+
+
+void LCDController::runRoundTimer() {
+  uint32_t now = millis();
+  if (now - _lastRoundTimerTick > 1000) {
+    _roundTimer--;
+
+    if (_roundTimer < 0) {
+      gameOver("");
+      return;
+    }
+
+    // Clear the previous time first
+    _lcd.setCursor(TIME_POS, INFO_LINE);
+    _lcd.print("   ");
+    _lcd.setCursor(TIME_POS, INFO_LINE);
+    _lcd.print(_roundTimer);
+    _lastRoundTimerTick = now;
+  }
+}
+
+void LCDController::setGameUIInit() {
+  _isGameUIInit = true;
+}
+
+bool LCDController::isGameUIInit() {
+  return _isGameUIInit;
+}
+
+void LCDController::gameOver(char const name[MAX_NAME_LEN]) {
+  if (strcmp("", name) == 0) {
+    showGameOver("DRAW");
+  } else {
+    char msg[GAME_OVER_MSG_LENGTH];
+    uint8_t index = 0;
+    while (name[index] != NULL) {
+      msg[index] = name[index];
+      index++;      
+    }
+    msg[index++] = " ";
+    msg[index++] = "W";
+    msg[index++] = "O";
+    msg[index++] = "N";
+    msg[index++] = NULL;
+    showGameOver(msg);
+  }
+
+  _state = State::GAME_OVER;
 }

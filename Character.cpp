@@ -400,3 +400,11 @@ bool Character::canMove() const {
 void Character::resetMoveTimer() {
   _lastMoveTime = millis();
 }
+
+bool Character::isDead() const {
+  return _hp <= 0;
+}
+
+uint8_t Character::getPlayerIndex() const{
+  return _orientation == Orientation::RIGHT ? 1 : 2;
+}

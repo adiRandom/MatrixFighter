@@ -68,6 +68,12 @@ void GameManager::handleInput() {
   bool isPlayer2SecondaryBtnPressed = player2InputBundle.isSecondaryBtnPressed;
 
   if (_isPlayingGame) {
+
+    if (!_lcdController.isGameUIInit()) {
+      initGameUi();
+      _lcdController.setGameUIInit();
+    }
+
     bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
     bool _didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);
 
@@ -107,14 +113,31 @@ bool GameManager::handlePlayerBtnInput(Character& player, bool isPrimaryPressed,
   if (isPrimaryPressed) {
     bool punchRes = player.punch();
     Character& otherPlayer = &player == &_player1 ? _player2 : _player1;
-    if (player.isHit(otherPlayer)) {
-      otherPlayer.gotHit();
-    }
+
+    hitPlayer(player, otherPlayer);
+
     return punchRes;
   } else if (isSecondaryPressed) {
     return player.block();
   } else if (player.isBlocking()) {
     return player.stopBlocking();
+  }
+}
+
+void GameManager::hitPlayer(Character& player, Character& otherPlayer) {
+  if (player.isHit(otherPlayer)) {
+    otherPlayer.gotHit();
+    if (otherPlayer.isDead()) {
+      // TODO: Get player name
+      if (player.getPlayerIndex() == 1) {
+        _lcdController.gameOver("P1");
+      } else {
+        _lcdController.gameOver("P2");
+      }
+      _isPlayingGame = false;
+    } else {
+      updatePlayerHP();
+    }
   }
 }
 
@@ -172,4 +195,15 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
   updateMovementRestrictions(player);
 
   return hasMoved || hasDoneAction;
+}
+
+
+void GameManager::initGameUi() {
+  updatePlayerHP();
+  // TODO: Add blocks
+}
+
+void GameManager::updatePlayerHP() {
+  _lcdController.setPlayer1Hp(_player1.getHP());
+  _lcdController.setPlayer2Hp(_player2.getHP());
 }
