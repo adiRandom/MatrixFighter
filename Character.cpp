@@ -190,62 +190,62 @@ bool Character::punch() {
 }
 
 void Character::crouch() {
-  // switch (_state) {
-  //   case State::CROUCHED:
-  //   case State::CROUCHED_BLOCKING:
-  //   case State::CROUCHED_PUNCHING:
-  //     {
-  //       return;
-  //     }
-  //   case State::PUNCHIG:
-  //   case State::IDLE:
-  //     {
-  //       _state = State::CROUCHED;
-  //       break;
-  //     }
-  //   case State::BLOCKING:
-  //     {
-  //       _state = State::CROUCHED_BLOCKING;
-  //       break;
-  //     }
-  //   default:
-  //     {
-  //       return;
-  //     }
-  // }
+  switch (_state) {
+    case State::CROUCHED:
+    case State::CROUCHED_BLOCKING:
+    case State::CROUCHED_PUNCHING:
+      {
+        return;
+      }
+    case State::PUNCHIG:
+    case State::IDLE:
+      {
+        _state = State::CROUCHED;
+        break;
+      }
+    case State::BLOCKING:
+      {
+        _state = State::CROUCHED_BLOCKING;
+        break;
+      }
+    default:
+      {
+        return;
+      }
+  }
 
-  // _origin.updateY(-1);
-  // refreshBoundingBox();
+  _origin.updateY(-1);
+  refreshBoundingBox();
 }
 
 bool Character::uncrouch() {
-  // switch (_state) {
-  //   case State::BLOCKING:
-  //   case State::IDLE:
-  //     {
-
-  //       return;
-  //     }
-  //   case State::PUNCHIG:
-  //   case State::CROUCHED:
-  //   case State::CROUCHED_PUNCHING:
-  //     {
-  //       _state = State::IDLE;
-  //       break;
-  //     }
-  //   case State::CROUCHED_BLOCKING:
-  //     {
-  //       _state = State::BLOCKING;
-  //       break;
-  //     }
-  //   default:
-  //     {
-  //       return;
-  //     }
-  // }
-  // _origin.updateY(1);
-  // refreshBoundingBox();
-  return false;
+  Serial.println(_state);
+  switch (_state) {
+    case State::BLOCKING:
+    case State::IDLE:
+      {
+        return false;
+      }
+    case State::PUNCHIG:
+    case State::CROUCHED:
+    case State::CROUCHED_PUNCHING:
+      {
+        _state = State::IDLE;
+        break;
+      }
+    case State::CROUCHED_BLOCKING:
+      {
+        _state = State::BLOCKING;
+        break;
+      }
+    default:
+      {
+        return false;
+      }
+  }
+  _origin.updateY(1);
+  refreshBoundingBox();
+  return true;
 }
 
 bool Character::runAnimations() {
@@ -363,19 +363,27 @@ uint16_t Character::getHP() {
 
 void Character::gotHit() {
   _hp--;
-  Serial.println(_hp);
 }
 bool Character::isHit(Character &other) {
-  if (other.isBlocking()) {
-    return false;
-  } else if (!isPunching() || _didPunchHit) {
+  if (!isPunching() || _didPunchHit) {
+    // Can't hit if not punching
+    // Or if the punch already hit and this is the rest of the punch animation
     return false;
   } else if (!other.getCollider().isColliding(_collider)) {
+    // No collision
     return false;
-  } else if (other.isCrouching() != isCrouching()) {
+  } else if (other.isCrouching() && !isCrouching()) {
+    // Pucnhing above the head
     return false;
+  } else if (other.isBlocking()) {
+    if (other.isCrouching()) {
+      // No point to hit the other player if he's bloking and crouching
+      return false;
+    } else if (!isChrouching()) {
+      // Punching right into the shield
+      return false;
+    }
   }
-
   _didPunchHit = true;
 
   return true;
@@ -383,4 +391,12 @@ bool Character::isHit(Character &other) {
 
 bool Character::isPunching() {
   return _state == State::PUNCHIG || _state == State::CROUCHED_PUNCHING;
+}
+
+bool Character::canMove() const {
+  return millis() - _lastMoveTime >= DEFAULT_MOVE_THROTTLE_TIME;
+}
+
+void Character::resetMoveTimer() {
+  _lastMoveTime = millis();
 }

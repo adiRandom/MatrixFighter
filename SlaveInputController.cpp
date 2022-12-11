@@ -52,7 +52,7 @@ InputBundle SlaveInputController::decode(uint8_t binaryForm) {
 }
 
 void SlaveInputController::sendBundle() {
-  Direction direction = _inputController.getJoyDirection(true);
+  Direction direction = _inputController.getJoyDirection(false);
   bool isPrimaryBtnPressed = _inputController.isPrimaryBtnPressed();
   bool isSecondaryBtnPressed = _inputController.isSecondaryBtnPressed();
 

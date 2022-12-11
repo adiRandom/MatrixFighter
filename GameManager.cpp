@@ -57,7 +57,7 @@ void GameManager::getNextFrame() {
 }
 
 void GameManager::handleInput() {
-  Direction player1Direction = _player1InputController.getJoyDirection(true);
+  Direction player1Direction = _player1InputController.getJoyDirection(false);
   bool isPlayer1PrimaryBtnPressed = _player1InputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _player1InputController.isSecondaryBtnPressed();
 
@@ -123,7 +123,11 @@ void GameManager::handleMenuJoyInput(Direction direction) {
 }
 
 bool GameManager::canPlayerMove(Character& player, Direction direction) {
-  return !((direction.isLeft() && !player.canGoLeft()) || (direction.isRight() && !player.canGoRight()));
+  bool isMovingToBlockedLeft = direction.isLeft() && !player.canGoLeft();
+  bool isMovingToBlockedRight = direction.isRight() && !player.canGoRight();
+  bool isAllowedByThrottle = player.canMove();
+
+  return isAllowedByThrottle && !isMovingToBlockedLeft && !isMovingToBlockedRight;
 }
 
 void GameManager::updateMovementRestrictions(Character& player) {
@@ -155,6 +159,10 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
 
   bool hasMoved = handlePlayerJoyInput(player, direciton);
   bool hasDoneAction = handlePlayerBtnInput(player, isPrimaryPressed, isSecondaryPressed);
+
+  if (hasMoved) {
+    player.resetMoveTimer();
+  }
 
   updateMovementRestrictions(player);
 

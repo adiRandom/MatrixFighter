@@ -9,6 +9,7 @@
 uint32_t const PUNCH_ANIMATION_TIME = 500;
 uint8_t const CHARACTER_MODEL_BUFFER_SIZE = 6;
 uint16_t const MAX_HP = 100;
+uint32_t const DEFAULT_MOVE_THROTTLE_TIME = 100;
 
 class Character {
 public:
@@ -41,6 +42,7 @@ private:
   Orientation _orientation;
 
   uint32_t _punchingTimer = millis();
+  uint32_t _lastMoveTime = 0;
 
   BoundingBox getBoundingBox();
   void refreshBoundingBox();
@@ -81,6 +83,8 @@ public:
   uint16_t getHP();
   // Check it this character is hitting the other
   bool isHit(Character &other);
+  bool canMove() const;
+  void resetMoveTimer();
 };
 
 #endif
