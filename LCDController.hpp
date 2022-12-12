@@ -6,10 +6,13 @@
 #include "MenuEntry.hpp"
 #include "Direction.hpp"
 #include <Arduino.h>
+#include "DisplayConstants.h"
 
 uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
-uint16_t const DEFAULT_ROUND_TIME = 100;
+
+uint16_t const DEFAULT_ROUND_TIME = 10;
+uint32_t const GAME_OVER_TIME = 3 * 1000;
 
 
 uint8_t const PLAYER_1_HP_POS = 0;
@@ -27,10 +30,8 @@ uint8_t const INFO_LINE = 0;
 uint8_t const STATS_LINE = 1;
 
 uint8_t const GAME_OVER_MSG_LENGTH = 8;
-uint8_t const MAX_NAME_LEN = 3;
-uint32_t const GAME_OVER_TIME = 3 * 1000;
 uint8_t const GAME_OVER_MSG_POS_X = 3;
-uint8_t const GAME_OVER_MSG_POS_Y = 3;
+uint8_t const GAME_OVER_MSG_POS_Y = 0;
 
 uint8_t const INTRO_MESSAGE_SIZE = 16;
 uint8_t const MAIN_MENU_SIZE = 4;
@@ -66,10 +67,13 @@ private:
   uint8_t _d6Pin;
   uint8_t _d7Pin;
   LiquidCrystal _lcd;
-  uint32_t _introTimer;
+  uint32_t _introTimer = 0;
   uint8_t _height;
   uint8_t _width;
   uint8_t _contrastPin;
+  // We add one so we actually start with the intended time
+  // since a second will tick when we start
+  int16_t _roundTimer = DEFAULT_ROUND_TIME + 1;
 
   MenuEntry _mainMenuEntries[MAIN_MENU_SIZE] = {
     MenuEntry(MAIN_MENU_PLAY_ID, Point{ 0, 0 }),
@@ -109,8 +113,6 @@ private:
 
   State _state = State::INTRO;
   State _lastState = State::INTRO;
-  uint16_t _roundTimer = DEFAULT_ROUND_TIME;
-  int32_t _lastRoundTimerTick = 0;
   bool _isGameUIInit = false;
   uint32_t _gameOverTimer = 0;
 
@@ -130,7 +132,6 @@ private:
   void moveHelpMenuSelector(Direction direction);
   void selectInMainMenu();
   void showGameOver(char const message[GAME_OVER_MSG_LENGTH]);
-  void runRoundTimer();
 
 public:
 
@@ -165,7 +166,11 @@ public:
 
   void setGameUIInit();
   bool isGameUIInit();
-  void gameOver(char const name[MAX_NAME_LEN]);
+  void gameOver(char const msg[GAME_OVER_MSG_LENGTH]);
+  /**
+   * return false when time is up
+   */
+  bool tickRoundTimer();
 };
 
 

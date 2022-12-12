@@ -5,11 +5,15 @@
 #include "Utils.h"
 #include "Collider.hpp"
 #include "Arduino.h"
+#include "DisplayConstants.h"
 
 uint32_t const PUNCH_ANIMATION_TIME = 500;
 uint8_t const CHARACTER_MODEL_BUFFER_SIZE = 6;
 uint16_t const DEFAULT_MAX_HP = 10;
 uint32_t const DEFAULT_MOVE_THROTTLE_TIME = 100;
+
+uint8_t const LEFT_PLAYER_X = 0;
+uint8_t const RIGHT_PLAYER_X = DISPLAY_WIDTH - 1;
 
 class Character {
 public:
@@ -89,6 +93,7 @@ public:
 
   // Is player 1 or 2
   uint8_t getPlayerIndex() const;
+  void reset();
 };
 
 #endif

@@ -127,3 +127,8 @@ void DisplayController::commitNextFrame() {
   draw();
   emptyNextFrame();
 }
+
+void DisplayController::clear(){
+  emptyNextFrame();
+  commitNextFrame();
+}

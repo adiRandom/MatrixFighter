@@ -85,10 +85,6 @@ LCDController& LCDController::operator=(LCDController const& other) {
 void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SIZE]) {
   displaySelector();
 
-  if (_state == State::GAME) {
-    runRoundTimer();
-  }
-
   if (_state == _lastState && _state != State::INTRO) {
     return;
   }
@@ -291,6 +287,7 @@ void LCDController::moveSelector(Direction direction) {
 
 void LCDController::showIntro(char const introMessage[INTRO_MESSAGE_SIZE]) {
   if (_introTimer == 0) {
+    _lcd.setCursor(0, 0);
     _lcd.print(introMessage);
     _introTimer = millis();
   } else {
@@ -301,14 +298,18 @@ void LCDController::showIntro(char const introMessage[INTRO_MESSAGE_SIZE]) {
 }
 
 void LCDController::showGameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
-  _lcd.setCursor(GAME_OVER_MSG_POS_X, GAME_OVER_MSG_POS_Y);
   if (_gameOverTimer == 0) {
     _lcd.clear();
+    _lcd.setCursor(GAME_OVER_MSG_POS_X, GAME_OVER_MSG_POS_Y);
     _lcd.print(msg);
     _gameOverTimer = millis();
   } else {
     if (millis() - _gameOverTimer > GAME_OVER_TIME) {
       _state = State::MENU;
+      _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+
+      // Reset state from previous run
+      _lastSelectedEntry = nullptr;
     }
   }
 }
@@ -323,6 +324,9 @@ void LCDController::showMainMenu() {
   }
   _lastState = State::MENU;
   _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+
+  // Reset state from previous run
+  _lastSelectedEntry = nullptr;
 }
 
 void LCDController::moveMainMenuSelector(Direction direction) {
@@ -406,6 +410,12 @@ void LCDController::selectInMainMenu() {
       }
     case MAIN_MENU_PLAY_ID:
       {
+        // Set the game state to initial values so we can reset the game
+        _roundTimer = DEFAULT_ROUND_TIME + 1;
+        _isGameUIInit = false;
+        _gameOverTimer = 0;
+        _lastSelectedEntry = nullptr;
+
         _state = State::PREGAME;
         // Set this so we won't update the screen before game starts
         _lastState = State::PREGAME;
@@ -552,8 +562,6 @@ void LCDController::showGame() {
   _lcd.setCursor(TIME_POS, INFO_LINE);
   _lcd.print(DEFAULT_ROUND_TIME);
 
-
-  _lastRoundTimerTick = millis();
   _lastState = State::GAME;
 }
 
@@ -626,23 +634,19 @@ void LCDController::setPlayer2Blocks(uint16_t blocks) {
 }
 
 
-void LCDController::runRoundTimer() {
-  uint32_t now = millis();
-  if (now - _lastRoundTimerTick > 1000) {
-    _roundTimer--;
+bool LCDController::tickRoundTimer() {
+  _roundTimer--;
 
-    if (_roundTimer < 0) {
-      gameOver("");
-      return;
-    }
-
-    // Clear the previous time first
-    _lcd.setCursor(TIME_POS, INFO_LINE);
-    _lcd.print("   ");
-    _lcd.setCursor(TIME_POS, INFO_LINE);
-    _lcd.print(_roundTimer);
-    _lastRoundTimerTick = now;
+  if (_roundTimer < 0) {
+    return false;
   }
+
+  // Clear the previous time first
+  _lcd.setCursor(TIME_POS, INFO_LINE);
+  _lcd.print("   ");
+  _lcd.setCursor(TIME_POS, INFO_LINE);
+  _lcd.print(_roundTimer);
+  return true;
 }
 
 void LCDController::setGameUIInit() {
@@ -653,23 +657,7 @@ bool LCDController::isGameUIInit() {
   return _isGameUIInit;
 }
 
-void LCDController::gameOver(char const name[MAX_NAME_LEN]) {
-  if (strcmp("", name) == 0) {
-    showGameOver("DRAW");
-  } else {
-    char msg[GAME_OVER_MSG_LENGTH];
-    uint8_t index = 0;
-    while (name[index] != NULL) {
-      msg[index] = name[index];
-      index++;      
-    }
-    msg[index++] = " ";
-    msg[index++] = "W";
-    msg[index++] = "O";
-    msg[index++] = "N";
-    msg[index++] = NULL;
-    showGameOver(msg);
-  }
-
+void LCDController::gameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
+  showGameOver(msg);
   _state = State::GAME_OVER;
 }

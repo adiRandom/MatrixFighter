@@ -405,6 +405,21 @@ bool Character::isDead() const {
   return _hp <= 0;
 }
 
-uint8_t Character::getPlayerIndex() const{
+uint8_t Character::getPlayerIndex() const {
   return _orientation == Orientation::RIGHT ? 1 : 2;
+}
+
+void Character::reset() {
+  _origin = _orientation == Orientation::LEFT ? Point{ RIGHT_PLAYER_X, 0 } : Point{ LEFT_PLAYER_X, 0 };
+
+  _state = State::IDLE;
+  _hp = DEFAULT_MAX_HP;
+  _canGoLeft = _orientation == Orientation::LEFT;
+  _canGoRight = _orientation == Orientation::RIGHT;
+
+  refreshBoundingBox();
+
+  _punchingTimer = millis();
+  _lastMoveTime = 0;
+  _didPunchHit = false;
 }

@@ -26,7 +26,6 @@ private:
   void initDisplay();
   void emptyNextFrame();
 
-
 public:
   DisplayController();
   DisplayController(
@@ -43,6 +42,7 @@ public:
   void setPixels(Pixel pixels[], uint32_t length);
   void commitNextFrame();
   void initStateAndNextFrame(DisplayController* initValue);
+  void clear();
 };
 
 #endif

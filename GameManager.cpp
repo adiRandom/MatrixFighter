@@ -40,6 +40,7 @@ void GameManager::getNextFrame() {
   if (!_isPlayingGame) {
     return;
   }
+
   bool player1AnimationRes = _player1.runAnimations();
   bool player2AnimationRes = _player2.runAnimations();
   if (!_changed && !player1AnimationRes && !player2AnimationRes) {
@@ -130,11 +131,10 @@ void GameManager::hitPlayer(Character& player, Character& otherPlayer) {
     if (otherPlayer.isDead()) {
       // TODO: Get player name
       if (player.getPlayerIndex() == 1) {
-        _lcdController.gameOver("P1");
+        gameOver("P1");
       } else {
-        _lcdController.gameOver("P2");
+        gameOver("P2");
       }
-      _isPlayingGame = false;
     } else {
       updatePlayerHP();
     }
@@ -200,10 +200,57 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
 
 void GameManager::initGameUi() {
   updatePlayerHP();
+  _lastRoundTimerTick = millis();
+  _changed = true;
+
+  getNextFrame();
   // TODO: Add blocks
 }
 
 void GameManager::updatePlayerHP() {
   _lcdController.setPlayer1Hp(_player1.getHP());
   _lcdController.setPlayer2Hp(_player2.getHP());
+}
+
+void GameManager::gameOver(char const name[MAX_NAME_LEN]) {
+  if (strcmp("", name) == 0) {
+    _lcdController.gameOver("DRAW");
+  } else {
+    char msg[GAME_OVER_MSG_LENGTH];
+    uint8_t index = 0;
+    while (name[index] != NULL) {
+      msg[index] = name[index];
+      index++;
+    }
+    msg[index++] = " ";
+    msg[index++] = "W";
+    msg[index++] = "O";
+    msg[index++] = "N";
+    msg[index++] = NULL;
+    _lcdController.gameOver(msg);
+  }
+
+  _isPlayingGame = false;
+  _displayController.clear();
+
+  _player1.reset();
+  _player2.reset();
+}
+
+void GameManager::runRoundTimer() {
+  if (!_isPlayingGame) {
+    return;
+  }
+
+  uint32_t now = millis();
+  if (now - _lastRoundTimerTick > 1000) {
+
+    bool isTimeUp = !_lcdController.tickRoundTimer();
+
+    if (isTimeUp) {
+      gameOver("");
+      return;
+    }
+    _lastRoundTimerTick = now;
+  }
 }

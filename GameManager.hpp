@@ -30,6 +30,8 @@ private:
   Character _player2;
   SlaveInputController _player2InputController;
 
+  int32_t _lastRoundTimerTick = 0;
+
   bool handlePlayerJoyInput(Character& player, Direction direction);
   void handleMenuJoyInput(Direction direciton);
   void handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed);
@@ -45,8 +47,11 @@ private:
   void initGameUi();
   void updatePlayerHP();
   void hitPlayer(Character& player, Character& otherPlayer);
+  void gameOver(char const name[MAX_NAME_LEN]);
 
-    public : GameManager();
+
+public:
+  GameManager();
   GameManager(
     DisplayController& displayController,
     Character& player1,
@@ -60,6 +65,7 @@ private:
   void getNextFrame();
   void handleInput();
   void getLCDState(char const introMessage[]);
+  void runRoundTimer();
 };
 
 #endif

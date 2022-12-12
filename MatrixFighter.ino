@@ -94,5 +94,6 @@ void loop() {
     gameManager.handleInput();
     gameManager.getNextFrame();
     gameManager.getLCDState(GREETING);
+    gameManager.runRoundTimer();
   }
 }
