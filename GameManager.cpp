@@ -58,7 +58,7 @@ void GameManager::getNextFrame() {
 }
 
 void GameManager::handleInput() {
-  Direction player1Direction = _player1InputController.getJoyDirection(false);
+  Direction player1Direction = _player1InputController.getJoyDirection(!_isPlayingGame);
   bool isPlayer1PrimaryBtnPressed = _player1InputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _player1InputController.isSecondaryBtnPressed();
 
@@ -222,10 +222,10 @@ void GameManager::gameOver(char const name[MAX_NAME_LEN]) {
       msg[index] = name[index];
       index++;
     }
-    msg[index++] = " ";
-    msg[index++] = "W";
-    msg[index++] = "O";
-    msg[index++] = "N";
+    msg[index++] = ' ';
+    msg[index++] = 'W';
+    msg[index++] = 'O';
+    msg[index++] = 'N';
     msg[index++] = NULL;
     _lcdController.gameOver(msg);
   }

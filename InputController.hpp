@@ -9,7 +9,7 @@
 uint16_t const POSITIVE_THRESHOLD = 700;
 uint16_t const NEGATIVE_THRESHOLD = 300;
 uint8_t const INPUT_DEBOUNCE_TIME = 50;
-uint32_t const DEFAULT_THROTTLE_TIME = 100;
+uint32_t const DEFAULT_THROTTLE_TIME = 300;
 
 // The value emitted by the button when pressed
 byte const BUTTON_PRESSED = LOW;

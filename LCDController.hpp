@@ -30,7 +30,7 @@ uint8_t const INFO_LINE = 0;
 uint8_t const STATS_LINE = 1;
 
 uint8_t const GAME_OVER_MSG_LENGTH = 8;
-uint8_t const GAME_OVER_MSG_POS_X = 3;
+uint8_t const GAME_OVER_MSG_POS_X = 4;
 uint8_t const GAME_OVER_MSG_POS_Y = 0;
 
 uint8_t const INTRO_MESSAGE_SIZE = 16;

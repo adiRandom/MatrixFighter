@@ -79,8 +79,8 @@ void setup() {
     DISPLAY_CLK_PIN
   );
 
-  player1 = Character(Point{ 0, 1 }, Character::Orientation::RIGHT);
-  player2 = Character(Point{ DISPLAY_WIDTH - 1, 1 }, Character::Orientation::LEFT);
+  player1 = Character(Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::RIGHT);
+  player2 = Character(Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::LEFT);
 
   gameManager = GameManager(displayController, player1, player1InputController, player2, player2SlaveInputController, lcdController);
 
