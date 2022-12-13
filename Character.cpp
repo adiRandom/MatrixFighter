@@ -8,15 +8,17 @@ Character::Character()
     _collider{ Collider(getBoundingBox()) },
     _state{ State::IDLE },
     _canGoLeft{ false },
-    _canGoRight{ true } {
+    _canGoRight{ true },
+    _hp{ 0 } {
 }
 
-Character::Character(Point initialPosition, Orientation orientation)
+Character::Character(Point initialPosition, Orientation orientation, uint16_t maxHp)
   : _origin{ initialPosition },
     _orientation{ orientation },
     _state{ State::IDLE },
     _canGoLeft{ orientation == Orientation::LEFT },
-    _canGoRight{ orientation == Orientation::RIGHT } {
+    _canGoRight{ orientation == Orientation::RIGHT },
+    _hp{ maxHp } {
 
   _collider = Collider{ getBoundingBox() };
 }
@@ -409,11 +411,11 @@ uint8_t Character::getPlayerIndex() const {
   return _orientation == Orientation::RIGHT ? 1 : 2;
 }
 
-void Character::reset() {
+void Character::reset(uint16_t maxHp) {
   _origin = _orientation == Orientation::LEFT ? Point{ RIGHT_PLAYER_X, 0 } : Point{ LEFT_PLAYER_X, 0 };
 
   _state = State::IDLE;
-  _hp = DEFAULT_MAX_HP;
+  _hp = maxHp;
   _canGoLeft = _orientation == Orientation::LEFT;
   _canGoRight = _orientation == Orientation::RIGHT;
 

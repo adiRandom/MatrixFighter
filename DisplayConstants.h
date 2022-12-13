@@ -5,7 +5,6 @@ uint8_t const DISPLAY_SIZE = 8;
 uint8_t const DISPLAY_WIDTH = 8;
 uint8_t const DISPLAY_HEIGHT = 8;
 uint8_t const DISPLAY_COUNT = 1;
-uint8_t const MAX_NAME_LEN = 3;
-
+uint8_t const MAX_NAME_LEN = 4;
 
 #endif

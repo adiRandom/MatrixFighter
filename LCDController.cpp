@@ -14,8 +14,7 @@ LCDController::LCDController()
     _lcd{ LiquidCrystal(_rsPin, _enablePin, _d4Pin, _d5Pin, _d6Pin, _d7Pin) },
     _introTimer{ 0 },
     _width{ 0 },
-    _height{ 0 },
-    _contrastPin{ 0 } {
+    _height{ 0 } {
 }
 
 LCDController::LCDController(
@@ -26,8 +25,7 @@ LCDController::LCDController(
   uint8_t d6Pin,
   uint8_t d7Pin,
   uint8_t height,
-  uint8_t width,
-  uint8_t contrastPin
+  uint8_t width
 )
   : _rsPin{ rsPin },
     _enablePin{ enablePin },
@@ -38,8 +36,7 @@ LCDController::LCDController(
     _lcd{ LiquidCrystal(_rsPin, _enablePin, _d4Pin, _d5Pin, _d6Pin, _d7Pin) },
     _introTimer{ 0 },
     _width{ width },
-    _height{ height },
-    _contrastPin{ contrastPin } {
+    _height{ height } {
   initDisplay();
 }
 
@@ -54,7 +51,6 @@ LCDController::LCDController(LCDController const& other)
     _introTimer{ 0 },
     _width{ other._width },
     _height{ other._height },
-    _contrastPin{ other._contrastPin },
     _selectedEntry{ other._selectedEntry } {
 
   initDisplay();
@@ -74,7 +70,6 @@ LCDController& LCDController::operator=(LCDController const& other) {
   _introTimer = 0;
   _width = other._width;
   _height = other._height;
-  _contrastPin = other._contrastPin;
   _selectedEntry = other._selectedEntry;
 
   initDisplay();
@@ -118,6 +113,11 @@ void LCDController::displayCurrentState(char const introMessage[INTRO_MESSAGE_SI
     case State::HELP:
       {
         showHelp(0);
+        break;
+      }
+    case State::SETTINGS:
+      {
+        showSettingsMenu();
         break;
       }
     default:
@@ -228,9 +228,7 @@ char const* LCDController::getAboutMenuEntryName(uint16_t id) const {
 }
 
 void LCDController::initDisplay() {
-  pinMode(_contrastPin, OUTPUT);
   _lcd.begin(_width, _height);
-  analogWrite(_contrastPin, DEFAULT_CONTRAST);
 
   uint8_t heart[8] = {
     0b00000,
@@ -277,6 +275,12 @@ void LCDController::moveSelector(Direction direction) {
     case State::HELP:
       {
         moveHelpMenuSelector(direction);
+        break;
+      }
+    case State::SETTINGS:
+      {
+        moveSettingsMenuSelector(direction);
+        break;
       }
     default:
       {
@@ -420,6 +424,11 @@ void LCDController::selectInMainMenu() {
         // Set this so we won't update the screen before game starts
         _lastState = State::PREGAME;
         break;
+      }
+    case MAIN_MENU_SETTINGS_ID:
+      {
+        _selectedEntry = &_settingsMenuEntries[0];
+        _state = State::SETTINGS;
       }
     default:
       {
@@ -582,6 +591,12 @@ void LCDController::back() {
         _lcd.noAutoscroll();
         break;
       }
+    case State::SETTINGS:
+      {
+        _state = State::MENU;
+        _selectedEntry = &_mainMenuEntries[0];
+        break;
+      }
     default:
       {
         break;
@@ -660,4 +675,106 @@ bool LCDController::isGameUIInit() {
 void LCDController::gameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
   showGameOver(msg);
   _state = State::GAME_OVER;
+}
+
+char const* LCDController::getSettingsMenuEntryName(uint16_t id) const {
+  switch (id) {
+    case SETTINGS_P1_NAME_ID:
+      {
+        return "PLAYER 1 NAME";
+      }
+    case SETTINGS_P2_NAME_ID:
+      {
+        return "PLAYER 2 NAME";
+      }
+    case SETTINGS_LCD_BRIGHTNESS:
+      {
+        return "LCD BRIGHTNESS";
+      }
+    case SETTINGS_MATRIX_BRIGHTNESS:
+      {
+        return "MATRIX BRIGHT";
+      }
+    case SETTINGS_MAX_HP_ID:
+      {
+        return "MAX HP";
+      }
+    case SETTINGS_MAX_BLOCKS_ID:
+      {
+        return "MAX BLOCKS";
+      }
+    case SETTINGS_ROUND_TIME:
+      {
+        return "ROUND TIME";
+      }
+    default:
+      {
+        return "";
+      }
+  }
+}
+
+void LCDController::showSettingsMenu() {
+  _lcd.clear();
+  _lcd.setCursor(0, 0);
+  _lcd.print(getSettingsMenuEntryName(_selectedEntry->getId()));
+  _lcd.setCursor(0, 1);
+
+  switch (_selectedEntry->getId()) {
+    case SETTINGS_P1_NAME_ID:
+      {
+        _lcd.print(_settingsStorage.getP1Name());
+        break;
+      }
+    case SETTINGS_P2_NAME_ID:
+      {
+        _lcd.print(_settingsStorage.getP2Name());
+        break;
+      }
+    case SETTINGS_LCD_BRIGHTNESS:
+      {
+        _lcd.print(_settingsStorage.getLCDBrightnessLv());
+        break;
+      }
+    case SETTINGS_MATRIX_BRIGHTNESS:
+      {
+        _lcd.print(_settingsStorage.getMatrixBrightnessLv());
+        break;
+      }
+    case SETTINGS_MAX_HP_ID:
+      {
+        _lcd.print(_settingsStorage.getMaxHP());
+        break;
+      }
+    case SETTINGS_MAX_BLOCKS_ID:
+      {
+        _lcd.print(_settingsStorage.getMaxBlocks());
+        break;
+      }
+    case SETTINGS_ROUND_TIME:
+      {
+        _lcd.print(_settingsStorage.getRoundTime());
+        break;
+      }
+    default:
+      {
+        break;
+      }
+  }
+
+  _lastState = State::SETTINGS;
+}
+
+
+void LCDController::moveSettingsMenuSelector(Direction direction) {
+
+  if (direction.isNeutral()) {
+    return;
+  } else if (direction.isUp() && _selectedEntry->getId() > 0) {
+    _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() - 1];
+  } else if (direction.isDown() && _selectedEntry->getId() < SETTINGS_MENU_SIZE - 1) {
+    _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() + 1];
+  }
+
+  showSettingsMenu();
 }

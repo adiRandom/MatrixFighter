@@ -7,13 +7,12 @@
 #include "Direction.hpp"
 #include <Arduino.h>
 #include "DisplayConstants.h"
+#include "Storage.hpp"
 
 uint32_t const INTRO_SHOW_TIME = 3 * 1000;
 uint16_t const DEFAULT_CONTRAST = 600;
 
-uint16_t const DEFAULT_ROUND_TIME = 10;
 uint32_t const GAME_OVER_TIME = 3 * 1000;
-
 
 uint8_t const PLAYER_1_HP_POS = 0;
 uint8_t const PLAYER_1_HEART_POS = 3;
@@ -53,6 +52,15 @@ uint8_t const HELP_JOYSTICK_LINE_ID = 1;
 uint8_t const HELP_ATK_LINE_ID = 2;
 uint8_t const HELP_DEF_LINE_ID = 3;
 
+uint8_t const SETTINGS_P1_NAME_ID = 0;
+uint8_t const SETTINGS_P2_NAME_ID = 1;
+uint8_t const SETTINGS_LCD_BRIGHTNESS = 2;
+uint8_t const SETTINGS_MATRIX_BRIGHTNESS = 3;
+uint8_t const SETTINGS_MAX_HP_ID = 4;
+uint8_t const SETTINGS_MAX_BLOCKS_ID = 5;
+uint8_t const SETTINGS_ROUND_TIME = 6;
+uint8_t const SETTINGS_MENU_SIZE = 7;
+
 uint8_t const HEART_SYMBOL = 0;
 uint8_t const SHIELD_SYMBOL = 1;
 
@@ -70,7 +78,6 @@ private:
   uint32_t _introTimer = 0;
   uint8_t _height;
   uint8_t _width;
-  uint8_t _contrastPin;
   // We add one so we actually start with the intended time
   // since a second will tick when we start
   int16_t _roundTimer = DEFAULT_ROUND_TIME + 1;
@@ -95,6 +102,17 @@ private:
     MenuEntry(HELP_DEF_LINE_ID, Point{ -1, -1 })
   };
 
+  MenuEntry _settingsMenuEntries[SETTINGS_MENU_SIZE] = {
+    MenuEntry(SETTINGS_P1_NAME_ID, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_P2_NAME_ID, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_LCD_BRIGHTNESS, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_MATRIX_BRIGHTNESS, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_MAX_HP_ID, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_MAX_BLOCKS_ID, Point{ -1, -1 }),
+    MenuEntry(SETTINGS_ROUND_TIME, Point{ -1, -1 })
+  };
+
+
   MenuEntry* _selectedEntry = nullptr;
   MenuEntry* _lastSelectedEntry = nullptr;
 
@@ -116,10 +134,14 @@ private:
   bool _isGameUIInit = false;
   uint32_t _gameOverTimer = 0;
 
+  Storage _settingsStorage;
+
   void displaySelector();
   char const* getMainMenuEntryName(uint16_t id) const;
   char const* getAboutMenuEntryName(uint16_t id) const;
   char const* getHelpMenuEntryName(uint16_t id) const;
+  char const* getSettingsMenuEntryName(uint16_t id) const;
+
   void initDisplay();
 
   void showGame();
@@ -130,8 +152,10 @@ private:
   void moveMainMenuSelector(Direction direction);
   void moveAboutMenuSelector(Direction direction);
   void moveHelpMenuSelector(Direction direction);
+  void moveSettingsMenuSelector(Direction direction);
   void selectInMainMenu();
   void showGameOver(char const message[GAME_OVER_MSG_LENGTH]);
+  void showSettingsMenu();
 
 public:
 
@@ -144,8 +168,7 @@ public:
     uint8_t d6Pin,
     uint8_t d7Pin,
     uint8_t height,
-    uint8_t width,
-    uint8_t contrastPin
+    uint8_t width
   );
   LCDController(LCDController const& other);
   LCDController& operator=(LCDController const& other);

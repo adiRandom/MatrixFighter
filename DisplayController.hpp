@@ -11,8 +11,8 @@ private:
   uint8_t _dataPin;
   uint8_t _loadPin;
   uint8_t _clkPin;
-  bool _state[DISPLAY_HEIGHT][DISPLAY_WIDTH];
-  bool _nextFrame[DISPLAY_HEIGHT][DISPLAY_WIDTH];
+  bool _frameBuffer[DISPLAY_HEIGHT][DISPLAY_WIDTH];
+  bool _shouldRedraw = true;
 
   LedControl _lc;
 

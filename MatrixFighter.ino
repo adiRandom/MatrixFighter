@@ -5,7 +5,8 @@
 #include "GameManager.hpp"
 #include "LCDController.hpp"
 #include "DisplayConstants.h"
-#include "SlaveInputController.hpp"
+#include "Storage.hpp"
+
 
 uint8_t const DISPLAY_DATA_PIN = 12;
 uint8_t const DISPLAY_CLK_PIN = 11;
@@ -23,8 +24,11 @@ uint8_t const LCD_D6_PIN = 5;
 uint8_t const LCD_D7_PIN = 4;
 uint8_t const LCD_WIDTH = 16;
 uint8_t const LCD_HEIGHT = 2;
-uint8_t const LCD_CONTRAST_PIN = 3;
-uint8_t const SLAVE_PIN = 2;
+uint8_t const P2_JOYSTICK_X_PIN = A3;
+uint8_t const P2_JOYSTICK_Y_PIN = A4;
+uint8_t const P2_PRIMARY_BTN_PIN = A5;
+uint8_t const P2_SECONDARY_BTN_PIN = 2
+;
 char const* GREETING = "HELLO BRAWLER!";
 
 bool isSlave = false;
@@ -52,8 +56,6 @@ InputController player2InputController(
 );
 Character player2;
 
-SlaveInputController player2SlaveInputController(player2InputController);
-
 GameManager gameManager;
 LCDController lcdController(
   LCD_RS_PIN,
@@ -63,15 +65,15 @@ LCDController lcdController(
   LCD_D6_PIN,
   LCD_D7_PIN,
   LCD_HEIGHT,
-  LCD_WIDTH,
-  LCD_CONTRAST_PIN
+  LCD_WIDTH
 );
 
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(SLAVE_PIN, INPUT);
+  Storage storage;
+  // storage.init();
 
   displayController = DisplayController(
     DISPLAY_DATA_PIN,
@@ -79,21 +81,15 @@ void setup() {
     DISPLAY_CLK_PIN
   );
 
-  player1 = Character(Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::RIGHT);
-  player2 = Character(Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::LEFT);
+  player1 = Character(Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::RIGHT, storage.getMaxHP());
+  player2 = Character(Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::LEFT, storage.getMaxHP());
 
-  gameManager = GameManager(displayController, player1, player1InputController, player2, player2SlaveInputController, lcdController);
-
-  isSlave = digitalRead(SLAVE_PIN) == HIGH;
+  gameManager = GameManager(displayController, player1, player1InputController, player2, player2InputController, lcdController);
 }
 
 void loop() {
-  if (isSlave) {
-    player2SlaveInputController.sendBundle();
-  } else {
     gameManager.handleInput();
     gameManager.getNextFrame();
     gameManager.getLCDState(GREETING);
     gameManager.runRoundTimer();
-  }
 }

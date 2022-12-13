@@ -7,7 +7,7 @@ GameManager::GameManager(
   Character& player1,
   InputController& player1InputController,
   Character& player2,
-  SlaveInputController& player2InputController,
+  InputController& player2InputController,
   LCDController& lcdController
 )
   : _displayController{ displayController },
@@ -62,11 +62,9 @@ void GameManager::handleInput() {
   bool isPlayer1PrimaryBtnPressed = _player1InputController.isPrimaryBtnPressed();
   bool isPlayer1SecondaryBtnPressed = _player1InputController.isSecondaryBtnPressed();
 
-  InputBundle player2InputBundle = _player2InputController.getBundle();
-
-  Direction player2Direction = player2InputBundle.direction;
-  bool isPlayer2PrimaryBtnPressed = player2InputBundle.isPrimaryBtnPressed;
-  bool isPlayer2SecondaryBtnPressed = player2InputBundle.isSecondaryBtnPressed;
+  Direction player2Direction = _player2InputController.getJoyDirection(false);
+  bool isPlayer2PrimaryBtnPressed = _player2InputController.isPrimaryBtnPressed();
+  bool isPlayer2SecondaryBtnPressed = _player2InputController.isSecondaryBtnPressed();
 
   if (_isPlayingGame) {
 
@@ -233,8 +231,9 @@ void GameManager::gameOver(char const name[MAX_NAME_LEN]) {
   _isPlayingGame = false;
   _displayController.clear();
 
-  _player1.reset();
-  _player2.reset();
+  uint16_t maxHp = _settingsStorage.getMaxHP();
+  _player1.reset(maxHp);
+  _player2.reset(maxHp);
 }
 
 void GameManager::runRoundTimer() {

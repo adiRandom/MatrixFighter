@@ -8,7 +8,7 @@
 #include "Utils.h"
 #include "Collider.hpp"
 #include "DisplayConstants.h"
-#include "SlaveInputController.hpp"
+
 
 class GameManager {
 private:
@@ -28,7 +28,7 @@ private:
     Point{ DISPLAY_WIDTH, DISPLAY_HEIGHT } } };
 
   Character _player2;
-  SlaveInputController _player2InputController;
+  InputController _player2InputController;
 
   int32_t _lastRoundTimerTick = 0;
 
@@ -49,7 +49,7 @@ private:
   void hitPlayer(Character& player, Character& otherPlayer);
   void gameOver(char const name[MAX_NAME_LEN]);
 
-
+  Storage _settingsStorage;
 public:
   GameManager();
   GameManager(
@@ -57,7 +57,7 @@ public:
     Character& player1,
     InputController& player1InputController,
     Character& player2,
-    SlaveInputController& player2InputController,
+    InputController& player2InputController,
     LCDController& lcdController
   );
   GameManager& operator=(GameManager const& other);
