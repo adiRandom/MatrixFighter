@@ -170,13 +170,7 @@ void GameManager::updateMovementRestrictions(Character& player) {
 }
 
 void GameManager::handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed) {
-  if (isPrimaryPressed) {
-    _lcdController.select();
-  } else if (_lcdController.isPreGame()) {
-    // We are releasing the button after selecting PLAY
-    _lcdController.startGame();
-    _isPlayingGame = true;
-  }
+  _isPlayingGame = _lcdController.onSelectChange(isPrimaryPressed);
 
   if (isSecondaryPressed) {
     _lcdController.back();

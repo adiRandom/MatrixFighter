@@ -48,25 +48,53 @@ uint32_t Storage::getRoundTime() {
 }
 
 void Storage::init() {
-  EEPROM.update(P1_NAME_ADDRESS, 'P');
-  EEPROM.update(P1_NAME_ADDRESS + 1, '1');
-  EEPROM.update(P1_NAME_ADDRESS + 2, NULL);
+  updateP1NameChar('P', 0);
+  updateP1NameChar('1', 1);
+  updateP1NameChar(' ', 2);
+  updateP1NameChar(NULL, 3);
 
-  EEPROM.update(P2_NAME_ADDRESS, 'P');
-  EEPROM.update(P2_NAME_ADDRESS + 1, '2');
-  EEPROM.update(P2_NAME_ADDRESS + 2, NULL);
+  updateP2NameChar('P', 0);
+  updateP2NameChar('2', 1);
+  updateP2NameChar(' ', 2);
+  updateP2NameChar(NULL, 3);
 
-  EEPROM.update(MATRIX_BRIGHTNESS_ADDRESS, DEFAULT_BRIGHTNESS_LV);
-  EEPROM.update(LCD_BRIGHTNESS_ADDRESS, DEFAULT_BRIGHTNESS_LV);
+  updateMatrixBrightnessLv(DEFAULT_MATRIX_BRIGHTNESS_LV);
+  updateLCDBrightnessLv(DEFAULT_LCD_BRIGHTNESS_LV);
+  updateMaxHp(DEFAULT_MAX_HP);
+  updateMaxBlocks(DEFAULT_MAX_BLOCKS);
+  updateRoundTime(DEFAULT_ROUND_TIME);
+}
 
-  byte const* currentByte = (const byte*)(const void*)&DEFAULT_MAX_HP;
+
+void Storage::updateLCDBrightnessLv(uint8_t lv) {
+  EEPROM.update(LCD_BRIGHTNESS_ADDRESS, lv);
+}
+
+void Storage::updateMatrixBrightnessLv(uint8_t lv) {
+  Serial.println(lv);
+  EEPROM.update(MATRIX_BRIGHTNESS_ADDRESS, lv);
+}
+
+void Storage::updateMaxBlocks(uint8_t maxBlocks) {
+  EEPROM.update(MAX_BLOCKS_ADDRESS, maxBlocks);
+}
+
+void Storage::updateMaxHp(uint16_t maxHp) {
+  byte const* currentByte = (const byte*)(const void*)&maxHp;
   EEPROM.update(MAX_HP_ADDRESS, *currentByte++);
   EEPROM.update(MAX_HP_ADDRESS + 1, *currentByte++);
+}
 
+void Storage::updateP1NameChar(char newValue, uint8_t index) {
+  EEPROM.update(P1_NAME_ADDRESS + index, newValue);
+}
 
-  EEPROM.update(MAX_BLOCKS_ADDRESS, DEFAULT_MAX_BLOCKS);
+void Storage::updateP2NameChar(char newValue, uint8_t index) {
+  EEPROM.update(P2_NAME_ADDRESS + index, newValue);
+}
 
-  currentByte = (const byte*)(const void*)&DEFAULT_ROUND_TIME;
+void Storage::updateRoundTime(uint32_t roundTime) {
+  byte const* currentByte = (const byte*)(const void*)&roundTime;
   EEPROM.update(ROUND_TIME_ADDRESS, *currentByte++);
   EEPROM.update(ROUND_TIME_ADDRESS + 1, *currentByte++);
   EEPROM.update(ROUND_TIME_ADDRESS + 2, *currentByte++);

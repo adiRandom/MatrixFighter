@@ -14,7 +14,8 @@ LCDController::LCDController()
     _lcd{ LiquidCrystal(_rsPin, _enablePin, _d4Pin, _d5Pin, _d6Pin, _d7Pin) },
     _introTimer{ 0 },
     _width{ 0 },
-    _height{ 0 } {
+    _height{ 0 },
+    _brightnessPin{ 0 } {
 }
 
 LCDController::LCDController(
@@ -24,6 +25,7 @@ LCDController::LCDController(
   uint8_t d5Pin,
   uint8_t d6Pin,
   uint8_t d7Pin,
+  uint8_t brightnessPin,
   uint8_t height,
   uint8_t width
 )
@@ -36,7 +38,8 @@ LCDController::LCDController(
     _lcd{ LiquidCrystal(_rsPin, _enablePin, _d4Pin, _d5Pin, _d6Pin, _d7Pin) },
     _introTimer{ 0 },
     _width{ width },
-    _height{ height } {
+    _height{ height },
+    _brightnessPin{ brightnessPin } {
   initDisplay();
 }
 
@@ -51,7 +54,8 @@ LCDController::LCDController(LCDController const& other)
     _introTimer{ 0 },
     _width{ other._width },
     _height{ other._height },
-    _selectedEntry{ other._selectedEntry } {
+    _selectedEntry{ other._selectedEntry },
+    _brightnessPin{ other._brightnessPin } {
 
   initDisplay();
 }
@@ -66,6 +70,7 @@ LCDController& LCDController::operator=(LCDController const& other) {
   _d5Pin = other._d5Pin;
   _d6Pin = other._d6Pin;
   _d7Pin = other._d7Pin;
+  _brightnessPin = other._brightnessPin;
   _lcd = LiquidCrystal(_rsPin, _enablePin, _d4Pin, _d5Pin, _d6Pin, _d7Pin);
   _introTimer = 0;
   _width = other._width;
@@ -382,18 +387,36 @@ void LCDController::moveMainMenuSelector(Direction direction) {
   }
 }
 
-void LCDController::select() {
+bool LCDController::onSelectChange(bool isPressed) {
+  if (!isPressed) {
+    _allowEnableEditMode = true;
+    if (isPreGame()) {
+      // We are releasing the button after selecting PLAY
+      startGame();
+      return true;
+    }
+
+    return false;
+  }
+
   switch (_state) {
     case State::MENU:
       {
         selectInMainMenu();
         break;
       }
+    case State::SETTINGS:
+      {
+        selectInSettings();
+        break;
+      }
     default:
       {
-        return;
+        break;
       }
   }
+
+  return false;
 }
 
 void LCDController::selectInMainMenu() {
@@ -428,6 +451,7 @@ void LCDController::selectInMainMenu() {
     case MAIN_MENU_SETTINGS_ID:
       {
         _selectedEntry = &_settingsMenuEntries[0];
+        _allowEnableEditMode = false;
         _state = State::SETTINGS;
       }
     default:
@@ -779,11 +803,115 @@ void LCDController::moveSettingsMenuSelector(Direction direction) {
 
   if (direction.isNeutral()) {
     return;
-  } else if (direction.isUp() && _selectedEntry->getId() > 0) {
-    _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() - 1];
-  } else if (direction.isDown() && _selectedEntry->getId() < SETTINGS_MENU_SIZE - 1) {
-    _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() + 1];
+  }
+
+  if (!_isSettingEditMode) {
+    if (direction.isUp() && _selectedEntry->getId() > 0) {
+      _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() - 1];
+    } else if (direction.isDown() && _selectedEntry->getId() < SETTINGS_MENU_SIZE - 1) {
+      _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() + 1];
+    }
+  } else {
+    moveSettingsMenuSelectorEditMode(direction);
   }
 
   showSettingsMenu();
+}
+
+void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
+  uint16_t settingsNewValue;
+  switch (_selectedEntry->getId()) {
+    case SETTINGS_P1_NAME_ID:
+      {
+        char editNameBuffer[MAX_NAME_LEN];
+        _settingsStorage.getP1Name(editNameBuffer);
+        // TODO: Add rest
+        break;
+      }
+    case SETTINGS_P2_NAME_ID:
+      {
+        char editNameBuffer[MAX_NAME_LEN];
+        _settingsStorage.getP2Name(editNameBuffer);
+        // TODO: Add rest
+        break;
+      }
+    case SETTINGS_LCD_BRIGHTNESS:
+      {
+        settingsNewValue = _settingsStorage.getLCDBrightnessLv();
+
+        if (direction.isLeft() && settingsNewValue > LCD_MIN_BRIGHT) {
+          settingsNewValue--;
+        } else if (direction.isRight() && settingsNewValue < LCD_MAX_BRIGHT) {
+          settingsNewValue++;
+        }
+        updateBrightness(settingsNewValue);
+        _settingsStorage.updateLCDBrightnessLv(settingsNewValue);
+        break;
+      }
+    case SETTINGS_MATRIX_BRIGHTNESS:
+      {
+        settingsNewValue = _settingsStorage.getMatrixBrightnessLv();
+
+        if (direction.isLeft() && settingsNewValue > MATRIX_MIN_BRIGHT) {
+          settingsNewValue--;
+        } else if (direction.isRight() && settingsNewValue < MATRIX_MAX_BRIGHT) {
+          settingsNewValue++;
+        }
+        _settingsStorage.updateMatrixBrightnessLv(settingsNewValue);
+
+        break;
+      }
+    case SETTINGS_MAX_HP_ID:
+      {
+        settingsNewValue = _settingsStorage.getMaxHP();
+
+        if (direction.isLeft() && settingsNewValue > MIN_HP) {
+          settingsNewValue--;
+        } else if (direction.isRight() && settingsNewValue < MAX_HP) {
+          settingsNewValue++;
+        }
+        _settingsStorage.updateMaxHp(settingsNewValue);
+        break;
+      }
+    case SETTINGS_MAX_BLOCKS_ID:
+      {
+        settingsNewValue = _settingsStorage.getMaxBlocks();
+
+        if (direction.isLeft() && settingsNewValue > MIN_BLOCKS) {
+          settingsNewValue--;
+        } else if (direction.isRight() && settingsNewValue < MAX_BLOCKS) {
+          settingsNewValue++;
+        }
+        _settingsStorage.updateMaxBlocks(settingsNewValue);
+
+        break;
+      }
+    case SETTINGS_ROUND_TIME:
+      {
+        settingsNewValue = _settingsStorage.getRoundTime();
+
+        if (direction.isLeft() && settingsNewValue > MIN_ROUND_TIME) {
+          settingsNewValue--;
+        } else if (direction.isRight() && settingsNewValue < MAX_ROUND_TIME) {
+          settingsNewValue++;
+        }
+        _settingsStorage.updateRoundTime(settingsNewValue);
+
+        break;
+      }
+    default:
+      {
+        break;
+      }
+  }
+}
+
+void LCDController::selectInSettings() {
+  if (_allowEnableEditMode) {
+    _isSettingEditMode = true;
+  }
+}
+
+void LCDController::updateBrightness(uint8_t lv) {
+  analogWrite(_brightnessPin, lv * LCD_BRIGHT_FACTOR);
 }

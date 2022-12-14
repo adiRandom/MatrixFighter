@@ -60,6 +60,24 @@ uint8_t const SETTINGS_MAX_BLOCKS_ID = 5;
 uint8_t const SETTINGS_ROUND_TIME = 6;
 uint8_t const SETTINGS_MENU_SIZE = 7;
 
+uint8_t const LCD_MIN_BRIGHT = 1;
+uint8_t const LCD_MAX_BRIGHT = 10;
+uint8_t const LCD_BRIGHT_FACTOR = 25;
+
+uint8_t const MATRIX_MIN_BRIGHT = 1;
+uint8_t const MATRIX_MAX_BRIGHT = 5;
+uint8_t const MATRIX_BRIGHT_FACTOR = 3;
+
+uint8_t const MIN_HP = 5;
+uint8_t const MAX_HP = 100;
+
+uint8_t const MIN_BLOCKS = 3;
+uint8_t const MAX_BLOCKS = 100;
+
+uint8_t const MIN_ROUND_TIME = 30;
+// 10 min
+uint8_t const MAX_ROUND_TIME = 60 * 10;
+
 uint8_t const HEART_SYMBOL = 0;
 uint8_t const SHIELD_SYMBOL = 1;
 
@@ -80,6 +98,7 @@ private:
   // We add one so we actually start with the intended time
   // since a second will tick when we start
   int16_t _roundTimer = DEFAULT_ROUND_TIME + 1;
+  uint8_t _brightnessPin;
 
   MenuEntry _mainMenuEntries[MAIN_MENU_SIZE] = {
     MenuEntry(MAIN_MENU_PLAY_ID, Point{ 0, 0 }),
@@ -114,6 +133,11 @@ private:
 
   MenuEntry* _selectedEntry = nullptr;
   MenuEntry* _lastSelectedEntry = nullptr;
+  bool _isSettingEditMode = false;
+
+  // Don't go into edit mode when
+  // the button is pressed when coming in from main menu
+  bool _allowEnableEditMode = false;
 
   enum State {
     INTRO,
@@ -153,8 +177,11 @@ private:
   void moveHelpMenuSelector(Direction direction);
   void moveSettingsMenuSelector(Direction direction);
   void selectInMainMenu();
+  void selectInSettings();
+  void moveSettingsMenuSelectorEditMode(Direction directon);
   void showGameOver(char const message[GAME_OVER_MSG_LENGTH]);
   void showSettingsMenu();
+  void updateBrightness(uint8_t lv);
 
 public:
 
@@ -166,6 +193,7 @@ public:
     uint8_t d5Pin,
     uint8_t d6Pin,
     uint8_t d7Pin,
+    uint8_t brightnessPin,
     uint8_t height,
     uint8_t width
   );
@@ -175,7 +203,9 @@ public:
   void displayCurrentState(char const introMessage[INTRO_MESSAGE_SIZE]);
 
   void moveSelector(Direction direction);
-  void select();
+
+  // Returns true if we need to start the game
+  bool onSelectChange(bool isPressed);
   void back();
   void startGame();
   bool isPreGame() const;
@@ -194,6 +224,5 @@ public:
    */
   bool tickRoundTimer();
 };
-
 
 #endif
