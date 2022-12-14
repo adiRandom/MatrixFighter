@@ -12,10 +12,10 @@ uint8_t const DISPLAY_DATA_PIN = 12;
 uint8_t const DISPLAY_CLK_PIN = 11;
 uint8_t const DISPLAY_LOAD_PIN = 10;
 uint8_t const HORIZONTAL_DISPLAY_COUNT = 1;
-uint8_t const JOYSTICK_X_PIN = A0;
-uint8_t const JOYSTICK_Y_PIN = A1;
-uint8_t const PRIMARY_BTN_PIN = 13;
-uint8_t const SECONDARY_BTN_PIN = A2;
+uint8_t const P1_JOYSTICK_X_PIN = A0;
+uint8_t const P1_JOYSTICK_Y_PIN = A1;
+uint8_t const P1_PRIMARY_BTN_PIN = 13;
+uint8_t const P1_SECONDARY_BTN_PIN = A2;
 uint8_t const LCD_RS_PIN = 9;
 uint8_t const LCD_ENABLE_PIN = 8;
 uint8_t const LCD_D4_PIN = 7;
@@ -26,19 +26,18 @@ uint8_t const LCD_WIDTH = 16;
 uint8_t const LCD_HEIGHT = 2;
 uint8_t const P2_JOYSTICK_X_PIN = A3;
 uint8_t const P2_JOYSTICK_Y_PIN = A4;
-uint8_t const P2_PRIMARY_BTN_PIN = A5;
-uint8_t const P2_SECONDARY_BTN_PIN = 2
-;
+uint8_t const P2_PRIMARY_BTN_PIN = 2;
+uint8_t const P2_SECONDARY_BTN_PIN = A5;
 char const* GREETING = "HELLO BRAWLER!";
 
 bool isSlave = false;
 
 DisplayController displayController;
 InputController player1InputController(
-  JOYSTICK_X_PIN,
-  JOYSTICK_Y_PIN,
-  PRIMARY_BTN_PIN,
-  SECONDARY_BTN_PIN,
+  P1_JOYSTICK_X_PIN,
+  P1_JOYSTICK_Y_PIN,
+  P1_PRIMARY_BTN_PIN,
+  P1_SECONDARY_BTN_PIN,
   true,
   false,
   true
@@ -46,12 +45,12 @@ InputController player1InputController(
 Character player1;
 
 InputController player2InputController(
-  JOYSTICK_X_PIN,
-  JOYSTICK_Y_PIN,
-  PRIMARY_BTN_PIN,
-  SECONDARY_BTN_PIN,
-  false,
+  P2_JOYSTICK_X_PIN,
+  P2_JOYSTICK_Y_PIN,
+  P2_PRIMARY_BTN_PIN,
+  P2_SECONDARY_BTN_PIN,
   true,
+  false,
   true
 );
 Character player2;
@@ -88,8 +87,8 @@ void setup() {
 }
 
 void loop() {
-    gameManager.handleInput();
-    gameManager.getNextFrame();
-    gameManager.getLCDState(GREETING);
-    gameManager.runRoundTimer();
+  gameManager.handleInput();
+  gameManager.getNextFrame();
+  gameManager.getLCDState(GREETING);
+  gameManager.runRoundTimer();
 }

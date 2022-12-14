@@ -41,6 +41,7 @@ DisplayController::PixelCoords DisplayController::resolvePixel(uint8_t row, uint
 
 void DisplayController::setPixel(Pixel pixel) {
   _frameBuffer[pixel.y][pixel.x] = pixel.value;
+  _shouldRedraw = true;
 }
 
 void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
@@ -48,6 +49,7 @@ void DisplayController::setPixels(Pixel pixels[], uint32_t length) {
     Pixel pixel = pixels[i];
     _frameBuffer[pixel.y][pixel.x] = pixel.value;
   }
+  _shouldRedraw = true;
 }
 
 void DisplayController::draw() {

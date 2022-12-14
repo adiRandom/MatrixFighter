@@ -73,10 +73,10 @@ void GameManager::handleInput() {
       _lcdController.setGameUIInit();
     }
 
-    bool _didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
-    bool _didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);
+    bool didPlayer1Update = handlePlayerInput(_player1, player1Direction, isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
+    bool didPlayer2Update = handlePlayerInput(_player2, player2Direction, isPlayer2PrimaryBtnPressed, isPlayer2SecondaryBtnPressed);
 
-    _changed = _didPlayer1Update || _didPlayer2Update;
+    _changed = didPlayer1Update || didPlayer2Update;
   } else {
     handleMenuJoyInput(player1Direction);
     handleMenuBtnInput(isPlayer1PrimaryBtnPressed, isPlayer1SecondaryBtnPressed);
@@ -90,7 +90,7 @@ void GameManager::getLCDState(char const introMessage[]) {
 
 bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
   if (!canPlayerMove(player, direction)) {
-    return;
+    return false;
   }
 
   if (direction.isRight()) {
@@ -104,6 +104,8 @@ bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
   } else {
     return player.uncrouch();
   }
+
+  // Serial.println(direction.getDirection());
 
   return true;
 }
