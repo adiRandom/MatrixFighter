@@ -37,7 +37,6 @@ uint8_t const MAIN_MENU_SIZE = 4;
 uint8_t const HELP_MENU_SIZE = 4;
 uint8_t const ABOUT_MENU_SIZE = 3;
 
-
 uint8_t const MAIN_MENU_PLAY_ID = 0;
 uint8_t const MAIN_MENU_SETTINGS_ID = 1;
 uint8_t const MAIN_MENU_ABOUT_ID = 2;

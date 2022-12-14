@@ -2,6 +2,8 @@
 #define STORAGE_HPP
 
 #include <stdint.h>
+#include "DisplayConstants.h"
+
 
 uint16_t const DEFAULT_MAX_HP = 10;
 uint32_t const DEFAULT_ROUND_TIME = 200;
@@ -18,8 +20,8 @@ uint8_t const ROUND_TIME_ADDRESS = 12;
 
 class Storage {
 public:
-  char const* getP1Name();
-  char const* getP2Name();
+  void getP1Name(char buffer[MAX_NAME_LEN]);
+  void getP2Name(char buffer[MAX_NAME_LEN]);
   uint8_t getMatrixBrightnessLv();
   uint8_t getLCDBrightnessLv();
   uint16_t getMaxHP();

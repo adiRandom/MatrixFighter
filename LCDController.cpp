@@ -719,16 +719,25 @@ void LCDController::showSettingsMenu() {
   _lcd.setCursor(0, 0);
   _lcd.print(getSettingsMenuEntryName(_selectedEntry->getId()));
   _lcd.setCursor(0, 1);
+  // Clean the line
+  for (int i = 0; i < LCD_LINE_LEN; i++) {
+    _lcd.print(" ");
+  }
+  _lcd.setCursor(0, 1);
 
   switch (_selectedEntry->getId()) {
     case SETTINGS_P1_NAME_ID:
       {
-        _lcd.print(_settingsStorage.getP1Name());
+        char name[MAX_NAME_LEN];
+        _settingsStorage.getP1Name(name);
+        _lcd.print(name);
         break;
       }
     case SETTINGS_P2_NAME_ID:
       {
-        _lcd.print(_settingsStorage.getP2Name());
+        char name[MAX_NAME_LEN];
+        _settingsStorage.getP2Name(name);
+        _lcd.print(name);
         break;
       }
     case SETTINGS_LCD_BRIGHTNESS:

@@ -28,6 +28,9 @@ uint8_t const P2_JOYSTICK_X_PIN = A3;
 uint8_t const P2_JOYSTICK_Y_PIN = A4;
 uint8_t const P2_PRIMARY_BTN_PIN = 2;
 uint8_t const P2_SECONDARY_BTN_PIN = A5;
+
+// Set to high to reset settings
+uint8_t const SETTINGS_RESET_PIN = 3;
 char const* GREETING = "HELLO BRAWLER!";
 
 bool isSlave = false;
@@ -69,10 +72,14 @@ LCDController lcdController(
 
 
 void setup() {
+  pinMode(SETTINGS_RESET_PIN, INPUT);
   Serial.begin(9600);
 
   Storage storage;
-  // storage.init();
+
+  if (digitalRead(SETTINGS_RESET_PIN) == HIGH) {
+    storage.init();
+  }
 
   displayController = DisplayController(
     DISPLAY_DATA_PIN,
