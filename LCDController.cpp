@@ -389,7 +389,8 @@ void LCDController::moveMainMenuSelector(Direction direction) {
 
 bool LCDController::onSelectChange(bool isPressed) {
   if (!isPressed) {
-    _allowEnableEditMode = true;
+    _ignoreSelectBtn = true;
+
     if (isPreGame()) {
       // We are releasing the button after selecting PLAY
       startGame();
@@ -424,6 +425,8 @@ void LCDController::selectInMainMenu() {
     return;
   }
 
+  Serial.println(_selectedEntry->getId());
+
   switch (_selectedEntry->getId()) {
     case MAIN_MENU_ABOUT_ID:
       {
@@ -451,7 +454,9 @@ void LCDController::selectInMainMenu() {
     case MAIN_MENU_SETTINGS_ID:
       {
         _selectedEntry = &_settingsMenuEntries[0];
-        _allowEnableEditMode = false;
+        // Don't go into edit mode in settings when
+        // the button is pressed when coming in from main menu
+        _ignoreSelectBtn = false;
         _state = State::SETTINGS;
       }
     default:
@@ -602,7 +607,15 @@ void LCDController::startGame() {
   _state = State::GAME;
 }
 
-void LCDController::back() {
+void LCDController::onBackBtnChange(bool isPressed) {
+  if (!isPressed) {
+    _ignoreBackBtn = false;
+  }
+
+  if (_ignoreBackBtn) {
+    return;
+  }
+
   switch (_state) {
     case State::ABOUT:
       {
@@ -617,8 +630,13 @@ void LCDController::back() {
       }
     case State::SETTINGS:
       {
-        _state = State::MENU;
-        _selectedEntry = &_mainMenuEntries[0];
+        if (_isSettingEditMode) {
+          _isSettingEditMode = false;
+          _ignoreBackBtn = true;
+        } else {
+          _state = State::MENU;
+          _selectedEntry = &_mainMenuEntries[0];
+        }
         break;
       }
     default:
@@ -907,7 +925,7 @@ void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
 }
 
 void LCDController::selectInSettings() {
-  if (_allowEnableEditMode) {
+  if (!_ignoreSelectBtn) {
     _isSettingEditMode = true;
   }
 }

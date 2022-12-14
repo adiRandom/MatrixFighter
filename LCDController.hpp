@@ -135,9 +135,8 @@ private:
   MenuEntry* _lastSelectedEntry = nullptr;
   bool _isSettingEditMode = false;
 
-  // Don't go into edit mode when
-  // the button is pressed when coming in from main menu
-  bool _allowEnableEditMode = false;
+  bool _ignoreSelectBtn = false;
+  bool _ignoreBackBtn = false;
 
   enum State {
     INTRO,
@@ -206,7 +205,7 @@ public:
 
   // Returns true if we need to start the game
   bool onSelectChange(bool isPressed);
-  void back();
+  void onBackBtnChange(bool isPressed);
   void startGame();
   bool isPreGame() const;
 

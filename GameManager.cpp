@@ -171,10 +171,7 @@ void GameManager::updateMovementRestrictions(Character& player) {
 
 void GameManager::handleMenuBtnInput(bool isPrimaryPressed, bool isSecondaryPressed) {
   _isPlayingGame = _lcdController.onSelectChange(isPrimaryPressed);
-
-  if (isSecondaryPressed) {
-    _lcdController.back();
-  }
+  _lcdController.onBackBtnChange(isSecondaryPressed);
 }
 
 bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool isPrimaryPressed, bool isSecondaryPressed) {

@@ -71,7 +71,6 @@ void Storage::updateLCDBrightnessLv(uint8_t lv) {
 }
 
 void Storage::updateMatrixBrightnessLv(uint8_t lv) {
-  Serial.println(lv);
   EEPROM.update(MATRIX_BRIGHTNESS_ADDRESS, lv);
 }
 
