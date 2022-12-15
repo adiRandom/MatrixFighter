@@ -5,7 +5,7 @@
 #include "Utils.h"
 #include "Collider.hpp"
 #include "Arduino.h"
-#include "DisplayConstants.h"
+#include "Constants.h"
 
 uint32_t const PUNCH_ANIMATION_TIME = 500;
 uint8_t const CHARACTER_MODEL_BUFFER_SIZE = 6;

@@ -2,7 +2,7 @@
 #define STORAGE_HPP
 
 #include <stdint.h>
-#include "DisplayConstants.h"
+#include "Constants.h"
 
 
 uint16_t const DEFAULT_MAX_HP = 10;

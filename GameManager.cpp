@@ -129,12 +129,15 @@ void GameManager::hitPlayer(Character& player, Character& otherPlayer) {
   if (player.isHit(otherPlayer)) {
     otherPlayer.gotHit();
     if (otherPlayer.isDead()) {
-      // TODO: Get player name
-      if (player.getPlayerIndex() == 1) {
-        gameOver("P1");
+      char nameBuffer[MAX_NAME_LEN];
+
+      if (player.getPlayerIndex() == PLAYER1_INDEX) {
+        _settingsStorage.getP1Name(nameBuffer);
       } else {
-        gameOver("P2");
+        _settingsStorage.getP2Name(nameBuffer);
       }
+
+      gameOver(nameBuffer);
     } else {
       updatePlayerHP();
     }

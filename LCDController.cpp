@@ -141,20 +141,20 @@ bool LCDController::isPreGame() const {
 }
 
 void LCDController::displaySelector() {
-  if (_selectedEntry == nullptr || _lastSelectedEntry == _selectedEntry || _selectedEntry->getSelectorPos().getX() == -1) {
+  if (_selectedEntry.getId() == -1 || _lastSelectedEntry == _selectedEntry || _selectedEntry.getSelectorPos().getX() == -1) {
     return;
   }
 
   _lcd.setCursor(
-    _lastSelectedEntry->getSelectorPos().getX(),
-    _lastSelectedEntry->getSelectorPos().getY()
+    _lastSelectedEntry.getSelectorPos().getX(),
+    _lastSelectedEntry.getSelectorPos().getY()
   );
 
   _lcd.print(" ");
 
   _lcd.setCursor(
-    _selectedEntry->getSelectorPos().getX(),
-    _selectedEntry->getSelectorPos().getY()
+    _selectedEntry.getSelectorPos().getX(),
+    _selectedEntry.getSelectorPos().getY()
   );
   _lcd.print(">");
 
@@ -315,10 +315,12 @@ void LCDController::showGameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
   } else {
     if (millis() - _gameOverTimer > GAME_OVER_TIME) {
       _state = State::MENU;
-      _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+      MenuEntry menuEntires[MAIN_MENU_SIZE];
+      getMenuEntries(MAIN_MENU_ID, menuEntires);
+      _selectedEntry = menuEntires[MAIN_MENU_PLAY_ID];
 
       // Reset state from previous run
-      _lastSelectedEntry = nullptr;
+      _lastSelectedEntry = MenuEntry();
     }
   }
 }
@@ -326,57 +328,63 @@ void LCDController::showGameOver(char const msg[GAME_OVER_MSG_LENGTH]) {
 void LCDController::showMainMenu() {
   _lcd.clear();
 
+  MenuEntry menuEntires[MAIN_MENU_SIZE];
+  getMenuEntries(MAIN_MENU_ID, menuEntires);
+
   for (int i = 0; i < MAIN_MENU_SIZE; i++) {
-    MenuEntry entry = _mainMenuEntries[i];
+    MenuEntry entry = menuEntires[i];
     _lcd.setCursor(entry.getSelectorPos().getX() + 1, entry.getSelectorPos().getY());
     _lcd.print(getMainMenuEntryName(entry.getId()));
   }
   _lastState = State::MENU;
-  _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+  _selectedEntry = menuEntires[MAIN_MENU_PLAY_ID];
 
   // Reset state from previous run
-  _lastSelectedEntry = nullptr;
+  _lastSelectedEntry = MenuEntry();
 }
 
 void LCDController::moveMainMenuSelector(Direction direction) {
-  if (_selectedEntry == nullptr) {
+  if (_selectedEntry.getId() == -1 || direction.isNeutral()) {
     return;
   }
 
-  switch (_selectedEntry->getId()) {
+  MenuEntry menuEntires[MAIN_MENU_SIZE];
+  getMenuEntries(MAIN_MENU_ID, menuEntires);
+
+  switch (_selectedEntry.getId()) {
     case MAIN_MENU_PLAY_ID:
       {
         if (direction.isRight()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_SETTINGS_ID];
         } else if (direction.isDown()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_ABOUT_ID];
         }
         break;
       }
     case MAIN_MENU_SETTINGS_ID:
       {
         if (direction.isLeft()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_PLAY_ID];
         } else if (direction.isDown()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_HELP_ID];
         }
         break;
       }
     case MAIN_MENU_ABOUT_ID:
       {
         if (direction.isRight()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_HELP_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_HELP_ID];
         } else if (direction.isUp()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_PLAY_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_PLAY_ID];
         }
         break;
       }
     case MAIN_MENU_HELP_ID:
       {
         if (direction.isLeft()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_ABOUT_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_ABOUT_ID];
         } else if (direction.isUp()) {
-          _selectedEntry = &_mainMenuEntries[MAIN_MENU_SETTINGS_ID];
+          _selectedEntry = menuEntires[MAIN_MENU_SETTINGS_ID];
         }
         break;
       }
@@ -421,11 +429,11 @@ bool LCDController::onSelectChange(bool isPressed) {
 }
 
 void LCDController::selectInMainMenu() {
-  if (_selectedEntry == nullptr) {
+  if (_selectedEntry.getId() == -1) {
     return;
   }
 
-  switch (_selectedEntry->getId()) {
+  switch (_selectedEntry.getId()) {
     case MAIN_MENU_ABOUT_ID:
       {
         _state = State::ABOUT;
@@ -442,7 +450,7 @@ void LCDController::selectInMainMenu() {
         _roundTimer = DEFAULT_ROUND_TIME + 1;
         _isGameUIInit = false;
         _gameOverTimer = 0;
-        _lastSelectedEntry = nullptr;
+        _lastSelectedEntry = MenuEntry();
 
         _state = State::PREGAME;
         // Set this so we won't update the screen before game starts
@@ -451,7 +459,10 @@ void LCDController::selectInMainMenu() {
       }
     case MAIN_MENU_SETTINGS_ID:
       {
-        _selectedEntry = &_settingsMenuEntries[0];
+        MenuEntry settingsMenu[SETTINGS_MENU_SIZE];
+        getMenuEntries(SETTINGS_MENU_ID, settingsMenu);
+
+        _selectedEntry = settingsMenu[0];
         // Don't go into edit mode in settings when
         // the button is pressed when coming in from main menu
         _ignoreSelectBtn = true;
@@ -465,33 +476,36 @@ void LCDController::selectInMainMenu() {
 }
 
 void LCDController::moveAboutMenuSelector(Direction direction) {
-  if (_selectedEntry == nullptr) {
+  if (_selectedEntry.getMenuId() == -1 || direction.isNeutral()) {
     return;
   }
 
-  switch (_selectedEntry->getId()) {
+  MenuEntry aboutMenu[ABOUT_MENU_SIZE];
+  getMenuEntries(ABOUT_MENU_ID, aboutMenu);
+
+  switch (_selectedEntry.getId()) {
     case ABOUT_GAME_NAME_ID:
       {
         if (direction.isDown()) {
           showAbout(ABOUT_CREATOR_NAME_ID);
-          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_NAME_ID];
+          _selectedEntry = aboutMenu[ABOUT_CREATOR_NAME_ID];
         }
         break;
       }
     case ABOUT_CREATOR_NAME_ID:
       {
         if (direction.isDown()) {
-          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_GITHUB_USERNAME_ID];
+          _selectedEntry = aboutMenu[ABOUT_CREATOR_GITHUB_USERNAME_ID];
         } else if (direction.isUp()) {
           showAbout(ABOUT_GAME_NAME_ID);
-          _selectedEntry = &_aboutEntries[ABOUT_GAME_NAME_ID];
+          _selectedEntry = aboutMenu[ABOUT_GAME_NAME_ID];
         }
         break;
       }
     case ABOUT_CREATOR_GITHUB_USERNAME_ID:
       {
         if (direction.isUp()) {
-          _selectedEntry = &_aboutEntries[ABOUT_CREATOR_NAME_ID];
+          _selectedEntry = aboutMenu[ABOUT_CREATOR_NAME_ID];
         }
         break;
       }
@@ -503,16 +517,19 @@ void LCDController::moveAboutMenuSelector(Direction direction) {
 }
 
 void LCDController::moveHelpMenuSelector(Direction direction) {
-  if (_selectedEntry == nullptr) {
+  if (_selectedEntry.getId() == -1 || direction.isNeutral()) {
     return;
   }
 
-  switch (_selectedEntry->getId()) {
+  MenuEntry helpMenu[HELP_MENU_ID];
+  getMenuEntries(HELP_MENU_ID, helpMenu);
+
+  switch (_selectedEntry.getId()) {
     case HELP_MOVE_LINE_ID:
       {
         if (direction.isDown()) {
           showHelp(HELP_JOYSTICK_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_JOYSTICK_LINE_ID];
+          _selectedEntry = helpMenu[HELP_JOYSTICK_LINE_ID];
         }
         break;
       }
@@ -520,10 +537,10 @@ void LCDController::moveHelpMenuSelector(Direction direction) {
       {
         if (direction.isDown()) {
           showHelp(HELP_ATK_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_ATK_LINE_ID];
+          _selectedEntry = helpMenu[HELP_ATK_LINE_ID];
         } else if (direction.isUp()) {
           showAbout(HELP_MOVE_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_MOVE_LINE_ID];
+          _selectedEntry = helpMenu[HELP_MOVE_LINE_ID];
         }
         break;
       }
@@ -531,10 +548,10 @@ void LCDController::moveHelpMenuSelector(Direction direction) {
       {
         if (direction.isDown()) {
           showHelp(HELP_DEF_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_DEF_LINE_ID];
+          _selectedEntry = helpMenu[HELP_DEF_LINE_ID];
         } else if (direction.isUp()) {
           showAbout(HELP_JOYSTICK_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_JOYSTICK_LINE_ID];
+          _selectedEntry = helpMenu[HELP_JOYSTICK_LINE_ID];
         }
         break;
       }
@@ -542,7 +559,7 @@ void LCDController::moveHelpMenuSelector(Direction direction) {
       {
         if (direction.isUp()) {
           showHelp(HELP_ATK_LINE_ID);
-          _selectedEntry = &_helpMenuEntries[HELP_ATK_LINE_ID];
+          _selectedEntry = helpMenu[HELP_ATK_LINE_ID];
         }
         break;
       }
@@ -556,8 +573,11 @@ void LCDController::moveHelpMenuSelector(Direction direction) {
 void LCDController::showAbout(uint16_t topEntryIndex) {
   _lcd.clear();
 
+  MenuEntry aboutMenu[ABOUT_MENU_SIZE];
+  getMenuEntries(ABOUT_MENU_ID, aboutMenu);
+
   for (int i = 0; i < 2; i++) {
-    MenuEntry entry = _aboutEntries[topEntryIndex + i];
+    MenuEntry entry = aboutMenu[topEntryIndex + i];
     _lcd.setCursor(
       entry.getSelectorPos().getX() + 1,
       i
@@ -565,16 +585,18 @@ void LCDController::showAbout(uint16_t topEntryIndex) {
     _lcd.print(getAboutMenuEntryName(entry.getId()));
   }
   _lastState = State::ABOUT;
-  _selectedEntry = &_aboutEntries[ABOUT_GAME_NAME_ID];
+  _selectedEntry = aboutMenu[ABOUT_GAME_NAME_ID];
 }
 
 void LCDController::showGame() {
   _lcd.clear();
+  char nameBuffer[MAX_NAME_LEN];
 
   // Player 1
 
   _lcd.setCursor(PLAYER_1_HP_POS, INFO_LINE);
-  _lcd.print("P1");
+  _settingsStorage.getP1Name(nameBuffer);
+  _lcd.print(nameBuffer);
 
   _lcd.setCursor(PLAYER_1_HEART_POS, STATS_LINE);
   _lcd.write((byte)HEART_SYMBOL);
@@ -585,7 +607,8 @@ void LCDController::showGame() {
 
   // Player 2
   _lcd.setCursor(PLAYER_2_NAME_POS, INFO_LINE);
-  _lcd.print("P2");
+  _settingsStorage.getP2Name(nameBuffer);
+  _lcd.print(nameBuffer);
 
   _lcd.setCursor(PLAYER_2_HEART_POS, STATS_LINE);
   _lcd.write((byte)HEART_SYMBOL);
@@ -613,7 +636,10 @@ void LCDController::onBackInSettings() {
     _lcd.noCursor();
   } else {
     _state = State::MENU;
-    _selectedEntry = &_mainMenuEntries[0];
+    MenuEntry menuEntires[MAIN_MENU_SIZE];
+    getMenuEntries(MAIN_MENU_ID, menuEntires);
+
+    _selectedEntry = menuEntires[0];
   }
 }
 
@@ -654,8 +680,11 @@ void LCDController::onBackBtnChange(bool isPressed) {
 void LCDController::showHelp(uint8_t topEntryIndex) {
   _lcd.clear();
 
+  MenuEntry helpMenu[HELP_MENU_ID];
+  getMenuEntries(HELP_MENU_ID, helpMenu);
+
   for (int i = 0; i < 2; i++) {
-    MenuEntry entry = _helpMenuEntries[topEntryIndex + i];
+    MenuEntry entry = helpMenu[topEntryIndex + i];
     _lcd.setCursor(
       entry.getSelectorPos().getX() + 1,
       i
@@ -663,7 +692,7 @@ void LCDController::showHelp(uint8_t topEntryIndex) {
     _lcd.print(getHelpMenuEntryName(entry.getId()));
   }
   _lastState = State::HELP;
-  _selectedEntry = &_helpMenuEntries[HELP_MOVE_LINE_ID];
+  _selectedEntry = helpMenu[HELP_MOVE_LINE_ID];
 }
 
 void LCDController::setPlayer1Hp(uint16_t hp) {
@@ -754,10 +783,10 @@ char const* LCDController::getSettingsMenuEntryName(uint16_t id) const {
       {
         return "ROUND TIME";
       }
-    // case SETTINGS_RESET:
-    //   {
-    //     return "RESET";
-    //   }
+    case SETTINGS_RESET:
+      {
+        return "RESET";
+      }
     default:
       {
         return "";
@@ -768,7 +797,7 @@ char const* LCDController::getSettingsMenuEntryName(uint16_t id) const {
 void LCDController::showSettingsMenu() {
   _lcd.clear();
   _lcd.setCursor(0, SETTINGS_NAME_LINE);
-  _lcd.print(getSettingsMenuEntryName(_selectedEntry->getId()));
+  _lcd.print(getSettingsMenuEntryName(_selectedEntry.getId()));
   _lcd.setCursor(0, SETTINGS_VALUE_LINE);
   // Clean the line
   for (int i = 0; i < LCD_LINE_LEN; i++) {
@@ -776,7 +805,7 @@ void LCDController::showSettingsMenu() {
   }
   _lcd.setCursor(0, SETTINGS_VALUE_LINE);
 
-  switch (_selectedEntry->getId()) {
+  switch (_selectedEntry.getId()) {
     case SETTINGS_P1_NAME_ID:
       {
         char name[MAX_NAME_LEN];
@@ -825,7 +854,7 @@ void LCDController::showSettingsMenu() {
   _lastState = State::SETTINGS;
 
   if (
-    _isSettingEditMode && (_selectedEntry->getId() == SETTINGS_P1_NAME_ID || _selectedEntry->getId() == SETTINGS_P2_NAME_ID)
+    _isSettingEditMode && (_selectedEntry.getId() == SETTINGS_P1_NAME_ID || _selectedEntry.getId() == SETTINGS_P2_NAME_ID)
   ) {
     // Put the cursor back to the position we are editing
     _lcd.setCursor(_selectedLetterIndex, SETTINGS_VALUE_LINE);
@@ -839,11 +868,15 @@ void LCDController::moveSettingsMenuSelector(Direction direction) {
     return;
   }
 
+
   if (!_isSettingEditMode) {
-    if (direction.isUp() && _selectedEntry->getId() > 0) {
-      _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() - 1];
-    } else if (direction.isDown() && _selectedEntry->getId() < SETTINGS_MENU_SIZE - 1) {
-      _selectedEntry = &_settingsMenuEntries[_selectedEntry->getId() + 1];
+    MenuEntry settingsMenu[SETTINGS_MENU_SIZE];
+    getMenuEntries(SETTINGS_MENU_ID, settingsMenu);
+
+    if (direction.isUp() && _selectedEntry.getId() > 0) {
+      _selectedEntry = settingsMenu[_selectedEntry.getId() - 1];
+    } else if (direction.isDown() && _selectedEntry.getId() < SETTINGS_MENU_SIZE - 1) {
+      _selectedEntry = settingsMenu[_selectedEntry.getId() + 1];
     }
   } else {
     moveSettingsMenuSelectorEditMode(direction);
@@ -857,7 +890,7 @@ void LCDController::updatePlayerNameLetter(
   Direction direction,
   uint8_t playerIndex
 ) {
-  char letterToUpdate;
+  char letterToUpdate = NULL;
 
   if (direction.isRight() && _selectedLetterIndex < MAX_NAME_LEN - 2) {
     _selectedLetterIndex++;
@@ -884,11 +917,16 @@ void LCDController::updatePlayerNameLetter(
     } else if (
       currentName[_selectedLetterIndex] < LAST_ALLOWED_LETTER_ASCII || currentName[_selectedLetterIndex] < LAST_ALLOWED_DIGIT_ASCII
     ) {
+
+      Serial.println(currentName[_selectedLetterIndex]);
       letterToUpdate = currentName[_selectedLetterIndex] + 1;
     }
   }
 
-  Serial.println(letterToUpdate);
+  if (letterToUpdate == NULL) {
+    return;
+  }
+
   if (playerIndex == 1) {
     _settingsStorage.updateP1NameChar(letterToUpdate, _selectedLetterIndex);
   } else {
@@ -898,7 +936,7 @@ void LCDController::updatePlayerNameLetter(
 
 void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
   uint16_t settingsNewValue;
-  switch (_selectedEntry->getId()) {
+  switch (_selectedEntry.getId()) {
     case SETTINGS_P1_NAME_ID:
       {
         char editNameBuffer[MAX_NAME_LEN];
@@ -996,7 +1034,7 @@ void LCDController::selectInSettings() {
   if (!_ignoreSelectBtn) {
     _isSettingEditMode = true;
 
-    switch (_selectedEntry->getId()) {
+    switch (_selectedEntry.getId()) {
       case SETTINGS_P1_NAME_ID:
       case SETTINGS_P2_NAME_ID:
         {
@@ -1004,11 +1042,12 @@ void LCDController::selectInSettings() {
           _lcd.cursor();
           break;
         }
-      // case SETTINGS_RESET:
-      //   {
-      //     _settingsStorage.init();
-      //     break;
-      //   }
+      case SETTINGS_RESET:
+        {
+          _settingsStorage.init();
+          onBackInSettings();
+          break;
+        }
       default:
         {
           break;
@@ -1019,4 +1058,49 @@ void LCDController::selectInSettings() {
 
 void LCDController::updateBrightness(uint8_t lv) {
   analogWrite(_brightnessPin, lv * LCD_BRIGHT_FACTOR);
+}
+
+void LCDController::getMenuEntries(uint8_t menuId, MenuEntry buffer[]) {
+  switch (menuId) {
+    case MAIN_MENU_ID:
+      {
+        buffer[MAIN_MENU_PLAY_ID] = MenuEntry(MAIN_MENU_PLAY_ID, Point{ 0, 0 }, MAIN_MENU_ID);
+        buffer[MAIN_MENU_SETTINGS_ID] = MenuEntry(MAIN_MENU_SETTINGS_ID, Point{ 7, 0 }, MAIN_MENU_ID);
+        buffer[MAIN_MENU_ABOUT_ID] = MenuEntry(MAIN_MENU_ABOUT_ID, Point{ 0, 1 }, MAIN_MENU_ID);
+        buffer[MAIN_MENU_HELP_ID] = MenuEntry(MAIN_MENU_HELP_ID, Point{ 7, 1 }, MAIN_MENU_ID);
+        break;
+      }
+    case ABOUT_MENU_ID:
+      {
+        buffer[ABOUT_GAME_NAME_ID] = MenuEntry(ABOUT_GAME_NAME_ID, Point{ 0, 0 }, ABOUT_MENU_ID);
+        buffer[ABOUT_CREATOR_NAME_ID] = MenuEntry(ABOUT_CREATOR_NAME_ID, Point{ 0, 0 }, ABOUT_MENU_ID);
+        buffer[ABOUT_CREATOR_GITHUB_USERNAME_ID] = MenuEntry(ABOUT_CREATOR_GITHUB_USERNAME_ID, Point{ 0, 1 }, ABOUT_MENU_ID);
+        break;
+      }
+    case HELP_MENU_ID:
+      {
+        buffer[HELP_MOVE_LINE_ID] = MenuEntry(HELP_MOVE_LINE_ID, Point{ -1, -1 }, HELP_MENU_ID);
+        buffer[HELP_JOYSTICK_LINE_ID] = MenuEntry(HELP_JOYSTICK_LINE_ID, Point{ -1, -1 }, HELP_MENU_ID);
+        buffer[HELP_ATK_LINE_ID] = MenuEntry(HELP_ATK_LINE_ID, Point{ -1, -1 }, HELP_MENU_ID);
+        buffer[HELP_DEF_LINE_ID] = MenuEntry(HELP_DEF_LINE_ID, Point{ -1, -1 }, HELP_MENU_ID);
+        break;
+      }
+    case SETTINGS_MENU_ID:
+      {
+        buffer[SETTINGS_P1_NAME_ID] = MenuEntry(SETTINGS_P1_NAME_ID, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_P2_NAME_ID] = MenuEntry(SETTINGS_P2_NAME_ID, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_LCD_BRIGHTNESS] = MenuEntry(SETTINGS_LCD_BRIGHTNESS, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_MATRIX_BRIGHTNESS] = MenuEntry(SETTINGS_MATRIX_BRIGHTNESS, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_MAX_HP_ID] = MenuEntry(SETTINGS_MAX_HP_ID, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[HELP_JOYSTICK_LINE_ID] = MenuEntry(HELP_JOYSTICK_LINE_ID, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_MAX_BLOCKS_ID] = MenuEntry(SETTINGS_MAX_BLOCKS_ID, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_ROUND_TIME] = MenuEntry(SETTINGS_ROUND_TIME, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        buffer[SETTINGS_RESET] = MenuEntry(SETTINGS_RESET, Point{ -1, -1 }, SETTINGS_MENU_ID);
+        break;
+      }
+    default:
+      {
+        break;
+      }
+  }
 }

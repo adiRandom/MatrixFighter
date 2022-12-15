@@ -49,13 +49,13 @@ uint32_t Storage::getRoundTime() {
 
 void Storage::init() {
   updateP1NameChar('P', 0);
-  updateP1NameChar('1', 1);
-  updateP1NameChar(' ', 2);
+  updateP1NameChar('0', 1);
+  updateP1NameChar('1', 2);
   updateP1NameChar(NULL, 3);
 
   updateP2NameChar('P', 0);
-  updateP2NameChar('2', 1);
-  updateP2NameChar(' ', 2);
+  updateP2NameChar('0', 1);
+  updateP2NameChar('2', 2);
   updateP2NameChar(NULL, 3);
 
   updateMatrixBrightnessLv(DEFAULT_MATRIX_BRIGHTNESS_LV);

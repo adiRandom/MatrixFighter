@@ -6,7 +6,7 @@
 #include "MenuEntry.hpp"
 #include "Direction.hpp"
 #include <Arduino.h>
-#include "DisplayConstants.h"
+#include "Constants.h"
 #include "Storage.hpp"
 
 uint32_t const INTRO_SHOW_TIME = 3 * 1000;
@@ -59,7 +59,7 @@ uint8_t const SETTINGS_MAX_HP_ID = 4;
 uint8_t const SETTINGS_MAX_BLOCKS_ID = 5;
 uint8_t const SETTINGS_ROUND_TIME = 6;
 uint8_t const SETTINGS_RESET = 7;
-uint8_t const SETTINGS_MENU_SIZE = 7;
+uint8_t const SETTINGS_MENU_SIZE = 8;
 
 uint8_t const LCD_MIN_BRIGHT = 1;
 uint8_t const LCD_MAX_BRIGHT = 10;
@@ -90,8 +90,12 @@ uint8_t const LAST_ALLOWED_LETTER_ASCII = 90;
 uint8_t const FIRST_ALLOWED_DIGIT_ASCII = 48;
 uint8_t const LAST_ALLOWED_DIGIT_ASCII = 57;
 
-uint8_t const PLAYER1_INDEX = 1;
-uint8_t const PLAYER2_INDEX = 2;
+
+
+uint8_t const MAIN_MENU_ID = 0;
+uint8_t const SETTINGS_MENU_ID = 1;
+uint8_t const ABOUT_MENU_ID = 2;
+uint8_t const HELP_MENU_ID = 3;
 
 class LCDController {
 private:
@@ -111,40 +115,8 @@ private:
   int16_t _roundTimer = DEFAULT_ROUND_TIME + 1;
   uint8_t _brightnessPin;
 
-  MenuEntry _mainMenuEntries[MAIN_MENU_SIZE] = {
-    MenuEntry(MAIN_MENU_PLAY_ID, Point{ 0, 0 }),
-    MenuEntry(MAIN_MENU_SETTINGS_ID, Point{ 7, 0 }),
-    MenuEntry(MAIN_MENU_ABOUT_ID, Point{ 0, 1 }),
-    MenuEntry(MAIN_MENU_HELP_ID, Point{ 7, 1 })
-  };
-
-  MenuEntry _aboutEntries[ABOUT_MENU_SIZE] = {
-    MenuEntry(ABOUT_GAME_NAME_ID, Point{ 0, 0 }),
-    MenuEntry(ABOUT_CREATOR_NAME_ID, Point{ 0, 0 }),
-    MenuEntry(ABOUT_CREATOR_GITHUB_USERNAME_ID, Point{ 0, 1 })
-  };
-
-  MenuEntry _helpMenuEntries[HELP_MENU_SIZE] = {
-    MenuEntry(HELP_MOVE_LINE_ID, Point{ -1, -1 }),
-    MenuEntry(HELP_JOYSTICK_LINE_ID, Point{ -1, -1 }),
-    MenuEntry(HELP_ATK_LINE_ID, Point{ -1, -1 }),
-    MenuEntry(HELP_DEF_LINE_ID, Point{ -1, -1 })
-  };
-
-  MenuEntry _settingsMenuEntries[SETTINGS_MENU_SIZE] = {
-    MenuEntry(SETTINGS_P1_NAME_ID, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_P2_NAME_ID, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_LCD_BRIGHTNESS, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_MATRIX_BRIGHTNESS, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_MAX_HP_ID, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_MAX_BLOCKS_ID, Point{ -1, -1 }),
-    MenuEntry(SETTINGS_ROUND_TIME, Point{ -1, -1 })
-    // MenuEntry(SETTINGS_RESET, Point{ -1, -1 })
-  };
-
-
-  MenuEntry* _selectedEntry = nullptr;
-  MenuEntry* _lastSelectedEntry = nullptr;
+  MenuEntry _selectedEntry;
+  MenuEntry _lastSelectedEntry;
   bool _isSettingEditMode = false;
   // The letter we are editing in player name
   uint8_t _selectedLetterIndex = 0;
@@ -201,6 +173,7 @@ private:
     uint8_t playerIndex
   );
   void LCDController::onBackInSettings();
+  void getMenuEntries(uint8_t menuId, MenuEntry buffer[]);
 
 public:
 

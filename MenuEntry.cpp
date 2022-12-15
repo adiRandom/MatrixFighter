@@ -4,17 +4,18 @@
 #include "MemoryFree.h"
 
 MenuEntry::MenuEntry()
-  : _id{ 0 }, _selectorPos{
-      Point{ 0, 0 }
-    } {
+  : _id{ -1 }, _selectorPos{
+      Point{ -1, -1 },
+    },
+    _menuId{ -1 } {
 }
 
-MenuEntry::MenuEntry(uint16_t id, Point selectorPos)
-  : _selectorPos{ selectorPos }, _id{id} {
+MenuEntry::MenuEntry(uint8_t id, Point selectorPos, uint8_t menuId)
+  : _selectorPos{ selectorPos }, _id{ id }, _menuId{ menuId } {
 }
 
 MenuEntry::MenuEntry(MenuEntry const& menuEntry)
-  : _selectorPos{ menuEntry._selectorPos }, _id{menuEntry._id} {
+  : _selectorPos{ menuEntry._selectorPos }, _id{ menuEntry._id }, _menuId{ menuEntry._menuId } {
 }
 
 MenuEntry& MenuEntry::operator=(MenuEntry const& menuEntry) {
@@ -24,12 +25,21 @@ MenuEntry& MenuEntry::operator=(MenuEntry const& menuEntry) {
 
   _selectorPos = menuEntry._selectorPos;
   _id = menuEntry._id;
+  _menuId = menuEntry._menuId;
   return *this;
 }
 
-uint16_t MenuEntry::getId() const {
+uint8_t MenuEntry::getId() const {
   return _id;
 }
 Point MenuEntry::getSelectorPos() const {
   return _selectorPos;
+}
+
+uint8_t MenuEntry::getMenuId() const {
+  return _menuId;
+}
+
+bool MenuEntry::operator==(MenuEntry const& other) {
+  return _menuId == other._menuId && _id == other._id;
 }

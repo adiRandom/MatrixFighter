@@ -1,5 +1,5 @@
 #include "Character.hpp"
-#include "DisplayConstants.h"
+#include "Constants.h"
 
 
 Character::Character()
@@ -408,7 +408,7 @@ bool Character::isDead() const {
 }
 
 uint8_t Character::getPlayerIndex() const {
-  return _orientation == Orientation::RIGHT ? 1 : 2;
+  return _orientation == Orientation::RIGHT ? PLAYER1_INDEX : PLAYER2_INDEX;
 }
 
 void Character::reset(uint16_t maxHp) {
