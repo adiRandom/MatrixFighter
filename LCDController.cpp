@@ -389,7 +389,7 @@ void LCDController::moveMainMenuSelector(Direction direction) {
 
 bool LCDController::onSelectChange(bool isPressed) {
   if (!isPressed) {
-    _ignoreSelectBtn = true;
+    _ignoreSelectBtn = false;
 
     if (isPreGame()) {
       // We are releasing the button after selecting PLAY
@@ -425,8 +425,6 @@ void LCDController::selectInMainMenu() {
     return;
   }
 
-  Serial.println(_selectedEntry->getId());
-
   switch (_selectedEntry->getId()) {
     case MAIN_MENU_ABOUT_ID:
       {
@@ -456,7 +454,7 @@ void LCDController::selectInMainMenu() {
         _selectedEntry = &_settingsMenuEntries[0];
         // Don't go into edit mode in settings when
         // the button is pressed when coming in from main menu
-        _ignoreSelectBtn = false;
+        _ignoreSelectBtn = true;
         _state = State::SETTINGS;
       }
     default:
@@ -610,6 +608,7 @@ void LCDController::startGame() {
 void LCDController::onBackBtnChange(bool isPressed) {
   if (!isPressed) {
     _ignoreBackBtn = false;
+    return;
   }
 
   if (_ignoreBackBtn) {
