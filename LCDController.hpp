@@ -58,6 +58,7 @@ uint8_t const SETTINGS_MATRIX_BRIGHTNESS = 3;
 uint8_t const SETTINGS_MAX_HP_ID = 4;
 uint8_t const SETTINGS_MAX_BLOCKS_ID = 5;
 uint8_t const SETTINGS_ROUND_TIME = 6;
+uint8_t const SETTINGS_RESET = 7;
 uint8_t const SETTINGS_MENU_SIZE = 7;
 
 uint8_t const LCD_MIN_BRIGHT = 1;
@@ -81,6 +82,16 @@ uint8_t const MAX_ROUND_TIME = 60 * 10;
 uint8_t const HEART_SYMBOL = 0;
 uint8_t const SHIELD_SYMBOL = 1;
 
+uint8_t const SETTINGS_NAME_LINE = 0;
+uint8_t const SETTINGS_VALUE_LINE = 1;
+
+uint8_t const FIRST_ALLOWED_LETTER_ASCII = 65;
+uint8_t const LAST_ALLOWED_LETTER_ASCII = 90;
+uint8_t const FIRST_ALLOWED_DIGIT_ASCII = 48;
+uint8_t const LAST_ALLOWED_DIGIT_ASCII = 57;
+
+uint8_t const PLAYER1_INDEX = 1;
+uint8_t const PLAYER2_INDEX = 2;
 
 class LCDController {
 private:
@@ -128,12 +139,15 @@ private:
     MenuEntry(SETTINGS_MAX_HP_ID, Point{ -1, -1 }),
     MenuEntry(SETTINGS_MAX_BLOCKS_ID, Point{ -1, -1 }),
     MenuEntry(SETTINGS_ROUND_TIME, Point{ -1, -1 })
+    // MenuEntry(SETTINGS_RESET, Point{ -1, -1 })
   };
 
 
   MenuEntry* _selectedEntry = nullptr;
   MenuEntry* _lastSelectedEntry = nullptr;
   bool _isSettingEditMode = false;
+  // The letter we are editing in player name
+  uint8_t _selectedLetterIndex = 0;
 
   bool _ignoreSelectBtn = false;
   bool _ignoreBackBtn = false;
@@ -181,6 +195,12 @@ private:
   void showGameOver(char const message[GAME_OVER_MSG_LENGTH]);
   void showSettingsMenu();
   void updateBrightness(uint8_t lv);
+  void updatePlayerNameLetter(
+    char* currentName,
+    Direction direcion,
+    uint8_t playerIndex
+  );
+  void LCDController::onBackInSettings();
 
 public:
 

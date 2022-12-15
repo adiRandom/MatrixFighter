@@ -78,7 +78,6 @@ void setup() {
 
   Storage storage;
   analogWrite(LCD_BRIGHT_PIN, LCD_BRIGHT_FACTOR * storage.getLCDBrightnessLv());
-  // storage.init();
 
   displayController = DisplayController(
     DISPLAY_DATA_PIN,

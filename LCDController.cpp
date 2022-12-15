@@ -605,6 +605,18 @@ void LCDController::startGame() {
   _state = State::GAME;
 }
 
+void LCDController::onBackInSettings() {
+  if (_isSettingEditMode) {
+    _isSettingEditMode = false;
+    _ignoreBackBtn = true;
+    _selectedLetterIndex = false;
+    _lcd.noCursor();
+  } else {
+    _state = State::MENU;
+    _selectedEntry = &_mainMenuEntries[0];
+  }
+}
+
 void LCDController::onBackBtnChange(bool isPressed) {
   if (!isPressed) {
     _ignoreBackBtn = false;
@@ -629,13 +641,7 @@ void LCDController::onBackBtnChange(bool isPressed) {
       }
     case State::SETTINGS:
       {
-        if (_isSettingEditMode) {
-          _isSettingEditMode = false;
-          _ignoreBackBtn = true;
-        } else {
-          _state = State::MENU;
-          _selectedEntry = &_mainMenuEntries[0];
-        }
+        onBackInSettings();
         break;
       }
     default:
@@ -748,6 +754,10 @@ char const* LCDController::getSettingsMenuEntryName(uint16_t id) const {
       {
         return "ROUND TIME";
       }
+    // case SETTINGS_RESET:
+    //   {
+    //     return "RESET";
+    //   }
     default:
       {
         return "";
@@ -757,14 +767,14 @@ char const* LCDController::getSettingsMenuEntryName(uint16_t id) const {
 
 void LCDController::showSettingsMenu() {
   _lcd.clear();
-  _lcd.setCursor(0, 0);
+  _lcd.setCursor(0, SETTINGS_NAME_LINE);
   _lcd.print(getSettingsMenuEntryName(_selectedEntry->getId()));
-  _lcd.setCursor(0, 1);
+  _lcd.setCursor(0, SETTINGS_VALUE_LINE);
   // Clean the line
   for (int i = 0; i < LCD_LINE_LEN; i++) {
     _lcd.print(" ");
   }
-  _lcd.setCursor(0, 1);
+  _lcd.setCursor(0, SETTINGS_VALUE_LINE);
 
   switch (_selectedEntry->getId()) {
     case SETTINGS_P1_NAME_ID:
@@ -813,6 +823,13 @@ void LCDController::showSettingsMenu() {
   }
 
   _lastState = State::SETTINGS;
+
+  if (
+    _isSettingEditMode && (_selectedEntry->getId() == SETTINGS_P1_NAME_ID || _selectedEntry->getId() == SETTINGS_P2_NAME_ID)
+  ) {
+    // Put the cursor back to the position we are editing
+    _lcd.setCursor(_selectedLetterIndex, SETTINGS_VALUE_LINE);
+  }
 }
 
 
@@ -835,6 +852,50 @@ void LCDController::moveSettingsMenuSelector(Direction direction) {
   showSettingsMenu();
 }
 
+void LCDController::updatePlayerNameLetter(
+  char* currentName,
+  Direction direction,
+  uint8_t playerIndex
+) {
+  char letterToUpdate;
+
+  if (direction.isRight() && _selectedLetterIndex < MAX_NAME_LEN - 2) {
+    _selectedLetterIndex++;
+    _lcd.setCursor(_selectedLetterIndex, SETTINGS_VALUE_LINE);
+    return;
+  } else if (direction.isLeft() && _selectedLetterIndex > 0) {
+    _selectedLetterIndex--;
+    _lcd.setCursor(_selectedLetterIndex, SETTINGS_VALUE_LINE);
+    return;
+  } else if (direction.isUp()) {
+
+    if (currentName[_selectedLetterIndex] == FIRST_ALLOWED_LETTER_ASCII) {
+      letterToUpdate = LAST_ALLOWED_DIGIT_ASCII;
+    } else if (
+      currentName[_selectedLetterIndex] > FIRST_ALLOWED_LETTER_ASCII || currentName[_selectedLetterIndex] > FIRST_ALLOWED_DIGIT_ASCII
+    ) {
+      letterToUpdate = currentName[_selectedLetterIndex] - 1;
+    }
+
+  } else if (direction.isDown()) {
+
+    if (currentName[_selectedLetterIndex] == LAST_ALLOWED_DIGIT_ASCII) {
+      letterToUpdate = FIRST_ALLOWED_LETTER_ASCII;
+    } else if (
+      currentName[_selectedLetterIndex] < LAST_ALLOWED_LETTER_ASCII || currentName[_selectedLetterIndex] < LAST_ALLOWED_DIGIT_ASCII
+    ) {
+      letterToUpdate = currentName[_selectedLetterIndex] + 1;
+    }
+  }
+
+  Serial.println(letterToUpdate);
+  if (playerIndex == 1) {
+    _settingsStorage.updateP1NameChar(letterToUpdate, _selectedLetterIndex);
+  } else {
+    _settingsStorage.updateP2NameChar(letterToUpdate, _selectedLetterIndex);
+  }
+}
+
 void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
   uint16_t settingsNewValue;
   switch (_selectedEntry->getId()) {
@@ -842,14 +903,22 @@ void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
       {
         char editNameBuffer[MAX_NAME_LEN];
         _settingsStorage.getP1Name(editNameBuffer);
-        // TODO: Add rest
+        updatePlayerNameLetter(
+          editNameBuffer,
+          direction,
+          PLAYER1_INDEX
+        );
         break;
       }
     case SETTINGS_P2_NAME_ID:
       {
         char editNameBuffer[MAX_NAME_LEN];
         _settingsStorage.getP2Name(editNameBuffer);
-        // TODO: Add rest
+        updatePlayerNameLetter(
+          editNameBuffer,
+          direction,
+          PLAYER2_INDEX
+        );
         break;
       }
     case SETTINGS_LCD_BRIGHTNESS:
@@ -926,6 +995,25 @@ void LCDController::moveSettingsMenuSelectorEditMode(Direction direction) {
 void LCDController::selectInSettings() {
   if (!_ignoreSelectBtn) {
     _isSettingEditMode = true;
+
+    switch (_selectedEntry->getId()) {
+      case SETTINGS_P1_NAME_ID:
+      case SETTINGS_P2_NAME_ID:
+        {
+          _lcd.setCursor(_selectedLetterIndex, SETTINGS_VALUE_LINE);
+          _lcd.cursor();
+          break;
+        }
+      // case SETTINGS_RESET:
+      //   {
+      //     _settingsStorage.init();
+      //     break;
+      //   }
+      default:
+        {
+          break;
+        }
+    }
   }
 }
 
