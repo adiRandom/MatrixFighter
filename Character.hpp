@@ -14,6 +14,8 @@ uint32_t const DEFAULT_MOVE_THROTTLE_TIME = 100;
 uint8_t const LEFT_PLAYER_X = 0;
 uint8_t const RIGHT_PLAYER_X = DISPLAY_WIDTH - 1;
 uint8_t const CHARACTER_INITIAL_Y = 1;
+uint8_t const BLINKS_ON_HIT = 2;
+uint8_t const BLINK_TIME = 1000;
 
 class Character {
 public:
@@ -47,9 +49,12 @@ private:
 
   uint32_t _punchingTimer = millis();
   uint32_t _lastMoveTime = 0;
+  BlinkState _blinkState;
 
   BoundingBox getBoundingBox();
   void refreshBoundingBox();
+  bool tookHitAnimation();
+  void resetBlinkState();
 
 public:
   Character();

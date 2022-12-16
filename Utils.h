@@ -35,4 +35,11 @@ struct InputBundle {
   bool isSecondaryBtnPressed;
 };
 
+struct BlinkState {
+  bool shouldBlink = false;
+  bool blinkState;
+  uint8_t blinkCount;
+  uint32_t blinkTimer;
+};
+
 #endif

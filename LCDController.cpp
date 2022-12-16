@@ -917,8 +917,6 @@ void LCDController::updatePlayerNameLetter(
     } else if (
       currentName[_selectedLetterIndex] < LAST_ALLOWED_LETTER_ASCII || currentName[_selectedLetterIndex] < LAST_ALLOWED_DIGIT_ASCII
     ) {
-
-      Serial.println(currentName[_selectedLetterIndex]);
       letterToUpdate = currentName[_selectedLetterIndex] + 1;
     }
   }

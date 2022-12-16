@@ -26,6 +26,11 @@ Character::Character(Point initialPosition, Orientation orientation, uint16_t ma
 uint8_t Character::getPixels(Pixel buffer[]) const {
   uint8_t index = 0;
   uint8_t armOffset = _orientation == Orientation::RIGHT ? 1 : -1;
+
+  if (_blinkState.shouldBlink && _blinkState.blinkState == false) {
+    return 0;
+  }
+
   switch (_state) {
     case State::IDLE:
       {
@@ -250,6 +255,27 @@ bool Character::uncrouch() {
   return true;
 }
 
+bool Character::tookHitAnimation() {
+  uint32_t now = millis();
+  if (now - _blinkState.blinkTimer > BLINK_TIME) {
+    _blinkState.blinkTimer = now;
+    _blinkState.blinkState = !_blinkState.blinkState;
+
+    if (_blinkState.blinkState == true) {
+      _blinkState.blinkCount++;
+    }
+
+    if (_blinkState.blinkCount == BLINKS_ON_HIT) {
+      _blinkState.shouldBlink = false;
+    }
+
+
+    return true;
+  }
+
+  return false;
+}
+
 bool Character::runAnimations() {
   uint32_t now = millis();
 
@@ -273,8 +299,14 @@ bool Character::runAnimations() {
       }
     default:
       {
-        return false;
+        break;
       }
+  }
+
+  if (_blinkState.shouldBlink) {
+    return tookHitAnimation();
+  } else {
+    return false;
   }
 }
 
@@ -365,6 +397,7 @@ uint16_t Character::getHP() {
 
 void Character::gotHit() {
   _hp--;
+  resetBlinkState();
 }
 bool Character::isHit(Character &other) {
   if (!isPunching() || _didPunchHit) {
@@ -424,4 +457,11 @@ void Character::reset(uint16_t maxHp) {
   _punchingTimer = millis();
   _lastMoveTime = 0;
   _didPunchHit = false;
+}
+
+void Character::resetBlinkState() {
+  _blinkState.blinkState = true;
+  _blinkState.blinkCount = 0;
+  _blinkState.shouldBlink = true;
+  _blinkState.blinkTimer = 0;
 }
