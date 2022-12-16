@@ -205,8 +205,8 @@ public:
   void setPlayer1Hp(uint16_t hp);
   void setPlayer2Hp(uint16_t hp);
 
-  void setPlayer1Blocks(uint16_t blocks);
-  void setPlayer2Blocks(uint16_t blocks);
+  void setPlayer1Blocks(uint8_t blocks);
+  void setPlayer2Blocks(uint8_t blocks);
 
   void setGameUIInit();
   bool isGameUIInit();

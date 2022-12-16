@@ -710,16 +710,16 @@ void LCDController::setPlayer2Hp(uint16_t hp) {
 }
 
 
-void LCDController::setPlayer1Blocks(uint16_t blocks) {
+void LCDController::setPlayer1Blocks(uint8_t blocks) {
   _lcd.setCursor(PLAYER_1_BLOCKS_POS, STATS_LINE);
-  _lcd.print("   ");
+  _lcd.print("  ");
   _lcd.setCursor(PLAYER_1_BLOCKS_POS, STATS_LINE);
   _lcd.print(blocks);
 }
 
-void LCDController::setPlayer2Blocks(uint16_t blocks) {
+void LCDController::setPlayer2Blocks(uint8_t blocks) {
   _lcd.setCursor(PLAYER_2_BLOCKS_POS, STATS_LINE);
-  _lcd.print("   ");
+  _lcd.print("  ");
   _lcd.setCursor(PLAYER_2_BLOCKS_POS, STATS_LINE);
   _lcd.print(blocks);
 }

@@ -85,8 +85,8 @@ void setup() {
     DISPLAY_CLK_PIN
   );
 
-  player1 = Character(Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::RIGHT, storage.getMaxHP());
-  player2 = Character(Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::LEFT, storage.getMaxHP());
+  player1 = Character(Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::RIGHT, storage.getMaxHP(), storage.getMaxBlocks());
+  player2 = Character(Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y }, Character::Orientation::LEFT, storage.getMaxHP(), storage.getMaxBlocks());
 
   gameManager = GameManager(displayController, player1, player1InputController, player2, player2InputController, lcdController);
 }
@@ -96,4 +96,5 @@ void loop() {
   gameManager.getNextFrame();
   gameManager.getLCDState(GREETING);
   gameManager.runRoundTimer();
+  gameManager.runBlockRechargeTimer();
 }

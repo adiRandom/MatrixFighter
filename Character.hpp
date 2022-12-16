@@ -16,6 +16,7 @@ uint8_t const RIGHT_PLAYER_X = DISPLAY_WIDTH - 1;
 uint8_t const CHARACTER_INITIAL_Y = 1;
 uint8_t const BLINKS_ON_HIT = 2;
 uint8_t const BLINK_TIME = 1000;
+uint8_t const BLOCK_RECHARGE_TIME = 5000;
 
 class Character {
 public:
@@ -50,6 +51,8 @@ private:
   uint32_t _punchingTimer = millis();
   uint32_t _lastMoveTime = 0;
   BlinkState _blinkState;
+  uint8_t _blockCount = 0;
+  uint8_t _maxBlockCount = 0;
 
   BoundingBox getBoundingBox();
   void refreshBoundingBox();
@@ -58,7 +61,12 @@ private:
 
 public:
   Character();
-  Character(Point initialPosition, Orientation orientation, uint16_t maxHp);
+  Character(
+    Point initialPosition,
+    Orientation orientation,
+    uint16_t maxHp,
+    uint8_t maxBlocks
+  );
   void moveLeft();
   void moveRight();
   void crouch();
@@ -95,10 +103,15 @@ public:
   bool canMove() const;
   void resetMoveTimer();
   bool isDead() const;
+  bool canBlock() const;
+  bool shouldRunBlockRechargeTimer() const;
 
   // Is player 1 or 2
   uint8_t getPlayerIndex() const;
   void reset(uint16_t maxHp);
+  uint8_t getBlockCount() const;
+
+  void rechargeBlock();
 };
 
 #endif

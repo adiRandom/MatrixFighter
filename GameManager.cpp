@@ -116,8 +116,11 @@ bool GameManager::handlePlayerBtnInput(Character& player, bool isPrimaryPressed,
     hitPlayer(player, otherPlayer);
 
     return punchRes;
-  } else if (isSecondaryPressed) {
-    return player.block();
+  } else if (isSecondaryPressed && player.canBlock()) {
+    bool shouldUpdateFrame = player.block();
+
+    updatePlayerBlocks();
+    return shouldUpdateFrame;
   } else if (player.isBlocking()) {
     return player.stopBlocking();
   }
@@ -192,6 +195,7 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
 
 void GameManager::initGameUi() {
   updatePlayerHP();
+  updatePlayerBlocks();
   _lastRoundTimerTick = millis();
   _changed = true;
 
@@ -205,6 +209,11 @@ void GameManager::initGameUi() {
 void GameManager::updatePlayerHP() {
   _lcdController.setPlayer1Hp(_player1.getHP());
   _lcdController.setPlayer2Hp(_player2.getHP());
+}
+
+void GameManager::updatePlayerBlocks() {
+  _lcdController.setPlayer1Blocks(_player1.getBlockCount());
+  _lcdController.setPlayer2Blocks(_player2.getBlockCount());
 }
 
 void GameManager::gameOver(char const name[MAX_NAME_LEN]) {
@@ -248,5 +257,33 @@ void GameManager::runRoundTimer() {
       return;
     }
     _lastRoundTimerTick = now;
+  }
+}
+
+void GameManager::runBlockRechargeTimer() {
+  if (!_isPlayingGame) {
+    return;
+  }
+  
+  uint32_t now = millis();
+
+  if (_player1.shouldRunBlockRechargeTimer() && _player1BlockRechargeTimer == 0) {
+    _player1BlockRechargeTimer = now;
+  }
+
+  if (_player2.shouldRunBlockRechargeTimer() && _player2BlockRechargeTimer == 0) {
+    _player2BlockRechargeTimer = now;
+  }
+
+  if (now - _player1BlockRechargeTimer > BLOCK_RECHARGE_TIME) {
+    _player1BlockRechargeTimer = 0;
+    _player1.rechargeBlock();
+    updatePlayerBlocks();
+  }
+
+  if (now - _player2BlockRechargeTimer > BLOCK_RECHARGE_TIME) {
+    _player2BlockRechargeTimer = 0;
+    _player2.rechargeBlock();
+    updatePlayerBlocks();
   }
 }

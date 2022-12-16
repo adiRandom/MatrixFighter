@@ -21,6 +21,10 @@ private:
   bool _changed = true;
   bool _isPlayingGame = false;
 
+  uint32_t _player1BlockRechargeTimer = 0;
+  uint32_t _player2BlockRechargeTimer = 0;
+
+
   Pixel _playerCharacterBuffer[CHARACTER_MODEL_BUFFER_SIZE];
 
   Collider _screenWalls{ BoundingBox{
@@ -46,6 +50,7 @@ private:
 
   void initGameUi();
   void updatePlayerHP();
+  void updatePlayerBlocks();
   void hitPlayer(Character& player, Character& otherPlayer);
   void gameOver(char const name[MAX_NAME_LEN]);
 
@@ -66,6 +71,7 @@ public:
   void handleInput();
   void getLCDState(char const introMessage[]);
   void runRoundTimer();
+  void runBlockRechargeTimer();
 };
 
 #endif

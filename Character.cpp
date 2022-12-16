@@ -12,13 +12,15 @@ Character::Character()
     _hp{ 0 } {
 }
 
-Character::Character(Point initialPosition, Orientation orientation, uint16_t maxHp)
+Character::Character(Point initialPosition, Orientation orientation, uint16_t maxHp, uint8_t maxBlocks)
   : _origin{ initialPosition },
     _orientation{ orientation },
     _state{ State::IDLE },
     _canGoLeft{ orientation == Orientation::LEFT },
     _canGoRight{ orientation == Orientation::RIGHT },
-    _hp{ maxHp } {
+    _hp{ maxHp },
+    _blockCount{ maxBlocks },
+    _maxBlockCount{ maxBlocks } {
 
   _collider = Collider{ getBoundingBox() };
 }
@@ -311,10 +313,12 @@ bool Character::runAnimations() {
 }
 
 bool Character::block() {
+
   switch (_state) {
     case State::BLOCKING:
     case State::CROUCHED_BLOCKING:
-      {
+      { 
+        _blockCount--;
         return false;
       }
     case State::CROUCHED:
@@ -449,6 +453,7 @@ void Character::reset(uint16_t maxHp) {
 
   _state = State::IDLE;
   _hp = maxHp;
+  _blockCount = _maxBlockCount;
   _canGoLeft = _orientation == Orientation::LEFT;
   _canGoRight = _orientation == Orientation::RIGHT;
 
@@ -464,4 +469,22 @@ void Character::resetBlinkState() {
   _blinkState.blinkCount = 0;
   _blinkState.shouldBlink = true;
   _blinkState.blinkTimer = 0;
+}
+
+bool Character::canBlock() const {
+  return _blockCount > 0;
+}
+
+bool Character::shouldRunBlockRechargeTimer() const {
+  return _blockCount < _maxBlockCount;
+}
+
+uint8_t Character::getBlockCount() const {
+  return _blockCount;
+}
+
+void Character::rechargeBlock() {
+  if (_blockCount < _maxBlockCount) {
+    _blockCount++;
+  }
 }
