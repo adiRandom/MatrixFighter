@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include "Utils.h"
 #include "Constants.h"
+#include "Storage.hpp"
+
+uint8_t const MATRIX_BRIGHT_FACTOR = 3;
 
 class DisplayController {
 private:
@@ -13,6 +16,7 @@ private:
   uint8_t _clkPin;
   bool _frameBuffer[DISPLAY_HEIGHT][DISPLAY_WIDTH];
   bool _shouldRedraw = true;
+  Storage _settingsStorage;
 
   LedControl _lc;
 
@@ -43,6 +47,7 @@ public:
   void commitNextFrame();
   void initStateAndNextFrame(DisplayController* initValue);
   void clear();
+  void setIntensityLv(uint8_t intensityLv);
 };
 
 #endif

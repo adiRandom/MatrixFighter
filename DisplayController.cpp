@@ -68,11 +68,18 @@ void DisplayController::draw() {
 }
 
 void DisplayController::initDisplay() {
+  uint8_t intensity = _settingsStorage.getMatrixBrightnessLv();
+  setIntensityLv(intensity);
+
   for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
     _lc.shutdown(i, false);
-    // TODO: Get from settings
-    _lc.setIntensity(i, 2);
     _lc.clearDisplay(i);
+  }
+}
+
+void DisplayController::setIntensityLv(uint8_t intensityLv) {
+  for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
+    _lc.setIntensity(i, intensityLv * MATRIX_BRIGHT_FACTOR);
   }
 }
 
@@ -127,5 +134,6 @@ void DisplayController::commitNextFrame() {
 
 void DisplayController::clear() {
   emptyNextFrame();
+  _shouldRedraw = true; 
   commitNextFrame();
 }

@@ -67,7 +67,7 @@ uint8_t const LCD_BRIGHT_FACTOR = 25;
 
 uint8_t const MATRIX_MIN_BRIGHT = 1;
 uint8_t const MATRIX_MAX_BRIGHT = 5;
-uint8_t const MATRIX_BRIGHT_FACTOR = 3;
+
 
 uint8_t const MIN_HP = 5;
 uint8_t const MAX_HP = 100;

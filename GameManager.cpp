@@ -105,8 +105,6 @@ bool GameManager::handlePlayerJoyInput(Character& player, Direction direction) {
     return player.uncrouch();
   }
 
-  // Serial.println(direction.getDirection());
-
   return true;
 }
 
@@ -196,6 +194,9 @@ void GameManager::initGameUi() {
   updatePlayerHP();
   _lastRoundTimerTick = millis();
   _changed = true;
+
+  uint8_t matrixIntensity = _settingsStorage.getLCDBrightnessLv();
+  _displayController.setIntensityLv(matrixIntensity);
 
   getNextFrame();
   // TODO: Add blocks

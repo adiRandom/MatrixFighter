@@ -412,7 +412,7 @@ uint8_t Character::getPlayerIndex() const {
 }
 
 void Character::reset(uint16_t maxHp) {
-  _origin = _orientation == Orientation::LEFT ? Point{ RIGHT_PLAYER_X, 0 } : Point{ LEFT_PLAYER_X, 0 };
+  _origin = _orientation == Orientation::LEFT ? Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y } : Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y };
 
   _state = State::IDLE;
   _hp = maxHp;
