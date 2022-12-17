@@ -39,7 +39,8 @@ uint8_t Character::getPixels(Pixel buffer[]) const {
         buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
         break;
       }
     case State::PUNCHIG:
@@ -47,23 +48,26 @@ uint8_t Character::getPixels(Pixel buffer[]) const {
         buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
         break;
       }
     case State::CROUCHED:
       {
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
         break;
       }
     case State::CROUCHED_PUNCHING:
       {
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + 2 * armOffset, _origin.getY() + 1 }.toPixel();
         break;
       }
     case State::BLOCKING:
@@ -71,8 +75,9 @@ uint8_t Character::getPixels(Pixel buffer[]) const {
         buffer[index++] = Point{ _origin.getX(), _origin.getY() - 1 }.toPixel();
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
         buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 2 }.toPixel();
         break;
       }
 
@@ -80,8 +85,10 @@ uint8_t Character::getPixels(Pixel buffer[]) const {
       {
         buffer[index++] = _origin.toPixel();
         buffer[index++] = Point{ _origin.getX(), _origin.getY() + 1 }.toPixel();
-        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() }.toPixel();
+        buffer[index++] = Point{ _origin.getX(), _origin.getY() + 2 }.toPixel();
         buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 1 }.toPixel();
+        buffer[index++] = Point{ _origin.getX() + armOffset, _origin.getY() + 2 }.toPixel();
+
         break;
       }
     default:
@@ -101,12 +108,12 @@ BoundingBox Character::getBoundingBox() {
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() + 2 },
             Point{ _origin.getX() + 1, _origin.getY() - 1 },
           };
         } else {
           return BoundingBox{
-            Point{ _origin.getX() - 1, _origin.getY() + 1 },
+            Point{ _origin.getX() - 1, _origin.getY() + 2 },
             Point{ _origin.getX(), _origin.getY() - 1 },
           };
         }
@@ -117,12 +124,12 @@ BoundingBox Character::getBoundingBox() {
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() + 2 },
             Point{ _origin.getX() + 1, _origin.getY() },
           };
         } else {
           return BoundingBox{
-            Point{ _origin.getX() - 1, _origin.getY() + 1 },
+            Point{ _origin.getX() - 1, _origin.getY() + 2 },
             Point{ _origin.getX(), _origin.getY() },
           };
         }
@@ -131,12 +138,12 @@ BoundingBox Character::getBoundingBox() {
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() + 2 },
             Point{ _origin.getX() + 2, _origin.getY() - 1 },
           };
         } else {
           return BoundingBox{
-            Point{ _origin.getX() - 2, _origin.getY() + 1 },
+            Point{ _origin.getX() - 2, _origin.getY() + 2 },
             Point{ _origin.getX(), _origin.getY() - 1 },
           };
         }
@@ -145,12 +152,12 @@ BoundingBox Character::getBoundingBox() {
       {
         if (_orientation == Orientation::RIGHT) {
           return BoundingBox{
-            Point{ _origin.getX(), _origin.getY() + 1 },
+            Point{ _origin.getX(), _origin.getY() + 2 },
             Point{ _origin.getX() + 2, _origin.getY() },
           };
         } else {
           return BoundingBox{
-            Point{ _origin.getX() - 2, _origin.getY() + 1 },
+            Point{ _origin.getX() - 2, _origin.getY() + 2 },
             Point{ _origin.getX(), _origin.getY() },
           };
         }
@@ -314,11 +321,11 @@ bool Character::runAnimations() {
 
 bool Character::block() {
 
+  Serial.println(_state);
   switch (_state) {
     case State::BLOCKING:
     case State::CROUCHED_BLOCKING:
-      { 
-        _blockCount--;
+      {
         return false;
       }
     case State::CROUCHED:
@@ -343,6 +350,8 @@ bool Character::block() {
 }
 
 bool Character::stopBlocking() {
+  _blockCount--;
+
   switch (_state) {
     case State::BLOCKING:
       {

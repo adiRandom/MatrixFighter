@@ -158,13 +158,13 @@ bool GameManager::canPlayerMove(Character& player, Direction direction) {
 }
 
 void GameManager::updateMovementRestrictions(Character& player) {
+  player.setCanGoLeft(true);
+  player.setCanGoRight(true);
+  
   if (player.getCollider().isLeftEdgeColliding(_screenWalls)) {
     player.setCanGoLeft(false);
   } else if (player.getCollider().isRightEdgeColliding(_screenWalls)) {
     player.setCanGoRight(false);
-  } else {
-    player.setCanGoLeft(true);
-    player.setCanGoRight(true);
   }
 
   if (_player1.getCollider().isColliding(_player2.getCollider())) {
@@ -264,7 +264,7 @@ void GameManager::runBlockRechargeTimer() {
   if (!_isPlayingGame) {
     return;
   }
-  
+
   uint32_t now = millis();
 
   if (_player1.shouldRunBlockRechargeTimer() && _player1BlockRechargeTimer == 0) {
