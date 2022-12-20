@@ -108,7 +108,7 @@ public:
 
   // Is player 1 or 2
   uint8_t getPlayerIndex() const;
-  void reset(uint16_t maxHp);
+  void reset(uint16_t maxHp, uint8_t maxBlockCount);
   uint8_t getBlockCount() const;
 
   void rechargeBlock();

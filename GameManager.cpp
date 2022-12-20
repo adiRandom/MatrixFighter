@@ -69,7 +69,7 @@ void GameManager::handleInput() {
   if (_isPlayingGame) {
 
     if (!_lcdController.isGameUIInit()) {
-      initGameUi();
+      initGame();
       _lcdController.setGameUIInit();
     }
 
@@ -160,7 +160,7 @@ bool GameManager::canPlayerMove(Character& player, Direction direction) {
 void GameManager::updateMovementRestrictions(Character& player) {
   player.setCanGoLeft(true);
   player.setCanGoRight(true);
-  
+
   if (player.getCollider().isLeftEdgeColliding(_screenWalls)) {
     player.setCanGoLeft(false);
   } else if (player.getCollider().isRightEdgeColliding(_screenWalls)) {
@@ -193,9 +193,13 @@ bool GameManager::handlePlayerInput(Character& player, Direction direciton, bool
 }
 
 
-void GameManager::initGameUi() {
+void GameManager::initGame() {
+  _player1.reset(_settingsStorage.getMaxHP(), _settingsStorage.getMaxBlocks());
+  _player2.reset(_settingsStorage.getMaxHP(), _settingsStorage.getMaxBlocks());
   updatePlayerHP();
   updatePlayerBlocks();
+
+
   _lastRoundTimerTick = millis();
   _changed = true;
 
@@ -203,7 +207,6 @@ void GameManager::initGameUi() {
   _displayController.setIntensityLv(matrixIntensity);
 
   getNextFrame();
-  // TODO: Add blocks
 }
 
 void GameManager::updatePlayerHP() {
@@ -238,8 +241,9 @@ void GameManager::gameOver(char const name[MAX_NAME_LEN]) {
   _displayController.clear();
 
   uint16_t maxHp = _settingsStorage.getMaxHP();
-  _player1.reset(maxHp);
-  _player2.reset(maxHp);
+  uint8_t maxBlockCount = _settingsStorage.getMaxBlocks();
+  _player1.reset(maxHp, maxBlockCount);
+  _player2.reset(maxHp, maxBlockCount);
 }
 
 void GameManager::runRoundTimer() {

@@ -321,7 +321,6 @@ bool Character::runAnimations() {
 
 bool Character::block() {
 
-  Serial.println(_state);
   switch (_state) {
     case State::BLOCKING:
     case State::CROUCHED_BLOCKING:
@@ -457,12 +456,13 @@ uint8_t Character::getPlayerIndex() const {
   return _orientation == Orientation::RIGHT ? PLAYER1_INDEX : PLAYER2_INDEX;
 }
 
-void Character::reset(uint16_t maxHp) {
+void Character::reset(uint16_t maxHp, uint8_t maxBlockCount) {
   _origin = _orientation == Orientation::LEFT ? Point{ RIGHT_PLAYER_X, CHARACTER_INITIAL_Y } : Point{ LEFT_PLAYER_X, CHARACTER_INITIAL_Y };
 
   _state = State::IDLE;
   _hp = maxHp;
-  _blockCount = _maxBlockCount;
+  _blockCount = maxBlockCount;
+  _maxBlockCount = maxBlockCount;
   _canGoLeft = _orientation == Orientation::LEFT;
   _canGoRight = _orientation == Orientation::RIGHT;
 

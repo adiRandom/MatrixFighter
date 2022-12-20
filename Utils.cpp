@@ -17,7 +17,7 @@ int16_t Point::getY() const {
 Pixel Point::toPixel() const {
   // We use the bottom left corner as (0,0) and the top left as (0, displayHeight - 1)
   // So we need to resolve this
-  return Pixel{ _x, DISPLAY_HEIGHT - _y - 1, true };
+  return Pixel{ DISPLAY_WIDTH - _x - 1, _y, true };
 }
 
 void Point::updateX(int16_t delta) {

@@ -48,7 +48,7 @@ private:
    */
   bool handlePlayerInput(Character& player, Direction direciton, bool isPrimaryPressed, bool isSecondaryPressed);
 
-  void initGameUi();
+  void initGame();
   void updatePlayerHP();
   void updatePlayerBlocks();
   void hitPlayer(Character& player, Character& otherPlayer);
